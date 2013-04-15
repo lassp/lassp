@@ -1,0 +1,40 @@
+body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+
+.lassp-orange {
+    color: #E05E33;
+}
+.lassp-yellow {
+    color: #EFE129;
+}
+
+.btn-success {
+  background-color: #ED7735;
+  background-image: -moz-linear-gradient(top, #F3B137, #ED7735);
+  background-image: -ms-linear-gradient(top, #F3B137, #ED7735);
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#F3B137), to(#ED7735));
+  background-image: -webkit-linear-gradient(top, #F3B137, #ED7735);
+  background-image: -o-linear-gradient(top, #F3B137, #ED7735);
+  background-image: linear-gradient(top, #F3B137, #ED7735);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#F3B137', endColorstr='#ED7735', GradientType=0);
+}
+
+.btn-success:hover,
+.btn-success:active,
+.btn-success.active,
+.btn-success.disabled,
+.btn-success[disabled] {
+  background-color: #ED7735;
+}
+
+.btn-success:active, .btn-success.active {
+  background-color: #ED7735;
+}
+
+div.container a.brand {
+    background: url("../img/sun-icon-256.png") no-repeat scroll 0 10px transparent;
+    margin-left: 0;
+    padding: 8px 20px 12px 20px;
+}
