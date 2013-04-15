@@ -1,10 +1,28 @@
-<div class="hero-unit">
-    <h1><?php echo sprintf($this->translate('Welcome to %sZend Framework 2%s'), '<span class="zf-green">', '</span>') ?></h1>
-    <p><?php echo sprintf($this->translate('Congratulations! You have successfully installed the %sZF2 Skeleton Application%s. You are currently running Zend Framework version %s. This skeleton can serve as a simple starting point for you to begin building your application on ZF2.'), '<a href="https://github.com/zendframework/ZendSkeletonApplication" target="_blank">', '</a>', \Zend\Version\Version::VERSION) ?></p>
-    <p><a class="btn btn-success btn-large" href="https://github.com/zendframework/zf2" target="_blank"><?php echo $this->translate('Fork Zend Framework 2 on GitHub') ?> &raquo;</a></p>
+
+<<style>
+<!--
+
+#map-canvas {
+  height: 400px;
+}
+
+#map-canvas img {
+  max-width: none;
+}
+
+#map-canvas label {
+  width: auto; display:inline;
+}
+
+-->
+</style>
+
+
+<div class="row-fluid">
+    <div class="span12" id="map-canvas"></div>
 </div>
 
-<div class="row">
+<div class="row-fluid">
 
     <div class="span4">
         <h2><?php echo $this->translate('Follow Development') ?></h2>
@@ -24,3 +42,193 @@
        <p><a class="btn btn-success" href="http://webchat.freenode.net?channels=zftalk" target="_blank"><?php echo $this->translate('Ping us on IRC') ?> &raquo;</a></p>
    </div>
 </div>
+
+
+<script type="text/javascript"
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFJ8V1qydk_HtNbvdlkK2yAkYf5GXNhTI&sensor=false">
+</script>
+<script type="text/javascript">
+
+  var planetOptions = {};
+  var bounds;
+  var map;
+  var planetDonut;
+  var center = new google.maps.LatLng(34.11811,-118.300313);
+
+  google.maps.event.addDomListener(window, 'load', initialize);
+
+  planetOptions['mercury'] = {
+    minMiles: .52,
+    maxMiles: .79,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 0,
+    fillColor: "#EFE129",
+    fillOpacity: 0.35
+  };
+  planetOptions['venus'] = {
+    minMiles: 1.21,
+    maxMiles: 1.23,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 0,
+    fillColor: "#EFE129",
+    fillOpacity: 0.35
+  };
+  planetOptions['earth'] = {
+    minMiles: 1.66,
+    maxMiles: 1.71,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 0,
+    fillColor: "#EFE129",
+    fillOpacity: 0.35
+  }
+  planetOptions['mars'] = {
+    minMiles: 2.33,
+    maxMiles: 2.81,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 0,
+    fillColor: "#EFE129",
+    fillOpacity: 0.35
+  }
+  planetOptions['asteroids'] = {
+    minMiles: 2.99,
+    maxMiles: 6.51,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 0,
+    fillColor: "#EFE129",
+    fillOpacity: 0.35
+  }
+  planetOptions['jupiter'] = {
+    minMiles: 8.35,
+    maxMiles: 9.20,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 0,
+    fillColor: "#EFE129",
+    fillOpacity: 0.35
+  }
+  planetOptions['saturn'] = {
+    minMiles: 15.21,
+    maxMiles: 16.95,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 0,
+    fillColor: "#EFE129",
+    fillOpacity: 0.35
+  }
+  planetOptions['uranus'] = {
+    minMiles: 30.90,
+    maxMiles: 33.85,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 0,
+    fillColor: "#EFE129",
+    fillOpacity: 0.35
+  }
+  planetOptions['neptune'] = {
+    minMiles: 50.09,
+    maxMiles: 51.23,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 0,
+    fillColor: "#EFE129",
+    fillOpacity: 0.35
+  }
+  planetOptions['pluto'] = {
+    minMiles: 50.00,
+    maxMiles: 83.13,
+    strokeColor: "#0000FF",
+    strokeOpacity: 0.8,
+    strokeWeight: 0,
+    fillColor: "#EFE129",
+    fillOpacity: 0.20
+  }
+
+
+  function initialize() {
+    var mapOptions = {
+      center: new google.maps.LatLng(34.11811,-118.300313),
+      zoom: 20,
+//       mapTypeId: google.maps.MapTypeId.ROADMAP,
+      mapTypeId: google.maps.MapTypeId.HYBRID,
+      tilt: 0
+    };
+
+    map = new google.maps.Map(document.getElementById("map-canvas"),mapOptions);
+
+    bounds = new google.maps.LatLngBounds();
+
+    for (var planet in planetOptions) {
+      // Construct the circle for each value in planetOptions.
+      var donutOptions = {
+        paths: [drawCircle(center, planetOptions[planet].maxMiles, -1),
+                drawCircle(center, planetOptions[planet].minMiles, 1)],
+        strokeColor: planetOptions[planet].strokeColor,
+        strokeOpacity: planetOptions[planet].strokeOpacity,
+        strokeWeight: planetOptions[planet].strokeWeight,
+        fillColor: planetOptions[planet].fillColor,
+        fillOpacity: planetOptions[planet].fillOpacity
+      };
+
+      planetDonut = new google.maps.Polygon(donutOptions);
+
+      planetDonut.setMap(map);
+
+    }
+
+     var imageBounds = new google.maps.LatLngBounds(
+         new google.maps.LatLng(34.117975,-118.300488), // lower left
+         new google.maps.LatLng(34.118235,-118.300179)  // upper right
+     );
+
+    var sunIcon = new google.maps.GroundOverlay(
+        "/img/sun-icon.png",
+        imageBounds);
+
+    sunIcon.setMap(map);
+
+    //map.fitBounds(bounds);
+
+    map.setZoom(20)
+    setTimeout("map.setZoom(18)", 5000)
+    setTimeout("map.setZoom(13)", 8000)
+    setTimeout("map.setZoom(8)", 11000)
+
+  }
+
+  function drawCircle(point, radius, dir) {
+    var d2r = Math.PI / 180;   // degrees to radians
+    var r2d = 180 / Math.PI;   // radians to degrees
+    var earthsradius = 3963;   // 3963 is the radius of the earth in miles
+
+     var points = 32;
+
+     // find the raidus in lat/lon
+     var rlat = (radius / earthsradius) * r2d;
+     var rlng = rlat / Math.cos(point.lat() * d2r);
+
+
+     var extp = new Array();
+     if (dir==1)  {
+      var start=0;var end=points+1 // one extra here makes sure we connect the
+     } else {
+      var start=points+1;var end=0
+     }
+
+     for (var i=start; (dir==1 ? i < end : i > end); i=i+dir)
+     {
+        var theta = Math.PI * (i / (points/2));
+        ey = point.lng() + (rlng * Math.cos(theta)); // center a + radius x * cos(theta)
+        ex = point.lat() + (rlat * Math.sin(theta)); // center b + radius y * sin(theta)
+        extp.push(new google.maps.LatLng(ex, ey));
+        bounds.extend(extp[extp.length-1]);
+     }
+     // alert(extp.length);
+     return extp;
+   }
+
+</script>
