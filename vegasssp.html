@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>Vegas Solar System</title>
+
+    <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
+
+    <link rel="stylesheet" href="./css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="./js/html5.js"></script>
+    <![endif]-->
+    <script type="text/javascript" src="./js/jquery.min.js"></script>
+    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+
+</head>
+
+<body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>
+                <a class="brand" href="./"><span class="lassp-yellow">Vegas Solar System</span></a>
+                <div class="nav-collapse collapse">
+                    <ul class="nav">
+                        <li class="active"><a href="./">Home</a></li>
+                    </ul>
+                </div><!--/.nav-collapse -->
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <style>
+            <!--
+            #map-canvas {
+                height: 400px;
+            }
+
+            #map-canvas img {
+                max-width: none;
+            }
+
+            #map-canvas label {
+                width: auto;
+                display: inline;
+            }
+            -->
+        </style>
+
+        <div class="row-fluid">
+            <div class="span12" id="map-canvas"></div>
+        </div>
+
+        <div class="row-fluid">
+
+            <div class="span4">
+                <h2>
+                    The Vegas Solar System Project Vision
+                </h2>
+                <p>
+                    The Solar System is a grand place, wider than we can imagine, very much an empty place.
+                </p>
+                <p>
+                    If the
+                    sun were the size of the Griffith Observatory Planetarium Dome, the earth would be little
+                    bigger than a soccer ball, more than a mile away. The moon would be the size of a baseball 23 feet
+                    from
+                    the earth. The nearest star would be 100,000 miles above the Indian Ocean.
+                </p>
+                <p>
+                    Whether you grew up
+                    with Flash Gordon, James T. Kirk, or Darth Vader, no one is zooming from planet to planet on
+                    a day-to-day basis. Visit our sculptural interpretation of the planets around southern California
+                    to experience the size and scope of the solar system.
+                </p>
+                <blockquote>Jack Anderson<br>Project Designer</blockquote>
+            </div>
+
+            <div class="span4">
+                <h2>
+                    The Model
+                </h2>
+                <dl>
+                    <dt>The Sun</dt>
+                    <dd>The scale of the project is determined by the size of the planetarium dome. At 83 feet, it is 55
+                        million times smaller than the sun.</dd>
+                    <dt>The Terrestrial Planets</dt>
+                    <dd>Planets orbit the Sun on an elliptical path. The circles represent the aphelion (furthest) and
+                        perihelion (closest) points a planet
+                        travels on its way around the Sun. The apparent size of the planetarium dome will match the
+                        apparent
+                        size of the sun from any
+                        point on the blue circle (Earth's orbit).</dd>
+                    <dt>The Gas Giants</dt>
+                    <dd>The Sun represents 99% of the mass of the solar system. The Gas Giants have 99% of the remaining
+                        mass consisting mostly of
+                        basic elements hydrogen, helium, carbon and oxygen. Their large size let us explore spherical
+                        structures.</dd>
+                    <dt>The Dwarf Planets and Asteroids</dt>
+                    <dd>Thousands of objects orbit the Sun. Many, including Pluto, are resonant with the orbit of
+                        Neptune.
+                        The twenty-nine largest can be placed around Southern California. One could be as far as St.
+                        Louis.
+                        Proxima Centuri, the nearest star, in the
+                        model would be almost halfway to the moon.</dd>
+                </dl>
+            </div>
+
+            <div class="span4">
+                <h2>
+                    Get Involved
+                </h2>
+                <p>
+                    The Solar System Project will provide a connection between art and science, a connection between
+                    our city and our sun, a connection between our world and ourselves, and a connection between
+                    the cultural and educational institutions of Los Angeles.
+                </p>
+                <p>
+                    Host locations from Hollywood to Mt.
+                    Wilson and from Santa Catalina Island to Pasadena will host a planet or an asteroid.
+                </p>
+                <p>
+                    Visitors to
+                    these locations will connect with our city and the region in a new way. A visit to one location will
+                    inspire curiosity about others. Avid astronomy fans will be compelled to visit every site. School
+                    children on a field trip will see their place in the city in a new light and enjoy a new perspective
+                    for
+                    their place in the universe. They will connect one with the next and connect with each other.
+                </p>
+
+                <h2>
+                    Contact
+                </h2>
+                <p>
+                    Email us for more information about sponsorship or becoming a host location:
+                </p>
+                <p><a class="btn btn-success" href="mailto:info@lassp.org" target="_blank">info@lassp.org</a></p>
+            </div>
+        </div>
+
+
+
+        <script type="text/javascript">
+
+            // define map in global scope so setTimeout calls can access it anonymously
+            let map;
+
+            function initMap() {
+                const planetOptions = {
+                    "mercury": {
+                        minMiles: .52,
+                        maxMiles: .79,
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 0,
+                        fillColor: "#FF0000",
+                        fillOpacity: 0.35
+                    },
+                    "venus": {
+                        minMiles: 1.21,
+                        maxMiles: 1.23,
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 0,
+                        fillColor: "#00FF00",
+                        fillOpacity: 0.35
+                    },
+                    "earth": {
+                        minMiles: 1.66,
+                        maxMiles: 1.71,
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 0,
+                        fillColor: "#005CFF",
+                        fillOpacity: 0.35
+                    },
+                    "mars": {
+                        minMiles: 2.33,
+                        maxMiles: 2.81,
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 0,
+                        fillColor: "#FF0000",
+                        fillOpacity: 0.35
+                    },
+                    "asteroids": {
+                        minMiles: 2.99,
+                        maxMiles: 6.51,
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 0,
+                        fillColor: "#A2A2A3",
+                        fillOpacity: 0.25
+                    },
+                    "jupiter": {
+                        minMiles: 8.35,
+                        maxMiles: 9.20,
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 0,
+                        fillColor: "#F96806",
+                        fillOpacity: 0.35
+                    },
+                    "saturn": {
+                        minMiles: 15.21,
+                        maxMiles: 16.95,
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 0,
+                        fillColor: "#FF00FF",
+                        fillOpacity: 0.35
+                    },
+                    "uranus": {
+                        minMiles: 30.90,
+                        maxMiles: 33.85,
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 0,
+                        fillColor: "#00FF67",
+                        fillOpacity: 0.35
+                    },
+                    "neptune": {
+                        minMiles: 50.09,
+                        maxMiles: 51.23,
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 0,
+                        fillColor: "#0000FF",
+                        fillOpacity: 0.35
+                    },
+                    "pluto": {
+                        minMiles: 50.00,
+                        maxMiles: 83.13,
+                        strokeColor: "#0000FF",
+                        strokeOpacity: 0.8,
+                        strokeWeight: 0,
+                        fillColor: "#00FFF8",
+                        fillOpacity: 0.20
+                    }
+                };
+                const center = new google.maps.LatLng(36.121274, -115.161971);
+                let planetDonut;
+                let mapOptions = {
+                    center: center,
+                    zoom: 20,
+                    //       mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    mapTypeId: google.maps.MapTypeId.HYBRID,
+                    tilt: 0
+                };
+
+                map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+
+                for (let planet in planetOptions) {
+                    // Construct the circle for each value in planetOptions.
+                    let donutOptions = {
+                        paths: [drawCircle(center, planetOptions[planet].maxMiles, -1),
+                        drawCircle(center, planetOptions[planet].minMiles, 1)],
+                        strokeColor: planetOptions[planet].strokeColor,
+                        strokeOpacity: planetOptions[planet].strokeOpacity,
+                        strokeWeight: planetOptions[planet].strokeWeight,
+                        fillColor: planetOptions[planet].fillColor,
+                        fillOpacity: planetOptions[planet].fillOpacity
+                    };
+
+                    planetDonut = new google.maps.Polygon(donutOptions);
+
+                    planetDonut.setMap(map);
+
+                }
+
+                const imageBounds = new google.maps.LatLngBounds(
+                    new google.maps.LatLng(36.120682, -115.162797), // lower left
+                    new google.maps.LatLng(36.121921, -115.161256)  // upper right
+                );
+
+                const sunIcon = new google.maps.GroundOverlay(
+                    "./img/sun-icon.png",
+                    imageBounds);
+
+                sunIcon.setMap(map);
+
+                map.setZoom(20)
+                setTimeout("map.setZoom(18)", 3000)
+                setTimeout("map.setZoom(16)", 5000)
+                setTimeout("map.setZoom(13)", 7000)
+                setTimeout("map.setZoom(10)", 9000)
+
+            }
+
+            function drawCircle(point, radius, dir) {
+                const d2r = Math.PI / 180;   // degrees to radians
+                const r2d = 180 / Math.PI;   // radians to degrees
+                const earthsradius = 3963;   // 3963 is the radius of the earth in miles
+                const points = 32;
+
+                // find the raidus in lat/lon
+                const rlat = (radius / earthsradius) * r2d;
+                const rlng = rlat / Math.cos(point.lat() * d2r);
+
+                let extp = [];
+                let start = points + 1;
+                let end = 0;
+                if (dir == 1) {
+                    start = 0;
+                    end = points + 1;
+                }
+
+                for (let i = start; (dir == 1 ? i < end : i > end); i = i + dir) {
+                    const theta = Math.PI * (i / (points / 2));
+                    ey = point.lng() + (rlng * Math.cos(theta)); // center a + radius x * cos(theta)
+                    ex = point.lat() + (rlat * Math.sin(theta)); // center b + radius y * sin(theta)
+                    extp.push(new google.maps.LatLng(ex, ey));
+                }
+                return extp;
+            }
+
+        </script>
+
+        <script type="text/javascript"
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFJ8V1qydk_HtNbvdlkK2yAkYf5GXNhTI&callback=initMap"
+            async defer>
+            </script>
+        <footer>
+            <p>&copy; 2005 -
+                <script>document.write(new Date().getFullYear())</script> by Jack Anderson, all rights reserved.
+            </p>
+            <!-- Sun icon courtesy Dan Wiersema http://www.iconarchive.com/show/solar-system-icons-by-dan-wiersma/Sun-icon.html -->
+        </footer>
+    </div> <!-- /container -->
+</body>
+
+</html>
