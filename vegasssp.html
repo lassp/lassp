@@ -41,6 +41,7 @@
         </div>
     </div>
     <div class="container-fluid">
+
         <style>
             <!--
             #map-canvas {
@@ -54,6 +55,14 @@
             #map-canvas label {
                 width: auto;
                 display: inline;
+            }
+
+            .infoWindow td {
+                padding-right: 10px;
+                text-align: right;
+            }
+            .infoWindow hr {
+                margin: 10px;
             }
             -->
         </style>
@@ -153,174 +162,255 @@
 
         <script type="text/javascript">
 
-            // define map in global scope so setTimeout calls can access it anonymously
+            const scaleFactor = 0.000000107459727333307;
+            const planets = [
+                {
+                    name: "Mercury",
+                    description: "Some details about Mercury.",
+                    perihelionMiles: 27952469,
+                    aphelionMiles: 42466251,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 0,
+                    fillColor: "#FF0000",
+                    fillOpacity: 0.5
+                },
+                {
+                    name: "Venus",
+                    description: "Some details about Venus.",
+                    perihelionMiles: 65043245,
+                    aphelionMiles: 66118340,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 0,
+                    fillColor: "#00FF00",
+                    fillOpacity: 0.5
+                },
+                {
+                    name: "Earth",
+                    description: "Some details about Earth.",
+                    perihelionMiles: 89232882,
+                    aphelionMiles: 91920619,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 0,
+                    fillColor: "#005CFF",
+                    fillOpacity: 0.5
+                },
+                {
+                    name: "Mars",
+                    description: "Some details about Mars.",
+                    perihelionMiles: 125248563,
+                    aphelionMiles: 151050843,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 0,
+                    fillColor: "#FF0000",
+                    fillOpacity: 0.5
+                },
+                {
+                    name: "Asteroid Belt",
+                    description: "Some details about the Asteroid Belt.",
+                    perihelionMiles: 160726697,
+                    aphelionMiles: 349943411,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 0,
+                    fillColor: "#A2A2A3",
+                    fillOpacity: 0.5
+                },
+                {
+                    name: "Jupiter",
+                    description: "Some details about Jupiter.",
+                    perihelionMiles: 448852148,
+                    aphelionMiles: 494543684,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 0,
+                    fillColor: "#F96806",
+                    fillOpacity: 0.5
+                },
+                {
+                    name: "Saturn",
+                    description: "Some details about Saturn.",
+                    perihelionMiles: 817609721,
+                    aphelionMiles: 911142983,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 0,
+                    fillColor: "#FF00FF",
+                    fillOpacity: 0.5
+                },
+                {
+                    name: "Uranus",
+                    description: "Some details about Uranus.",
+                    perihelionMiles: 1661021720,
+                    aphelionMiles: 1819598228,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 0,
+                    fillColor: "#00FF67",
+                    fillOpacity: 0.5
+                },
+                {
+                    name: "Neptune",
+                    description: "Some details about Neptune.",
+                    perihelionMiles: 2692575339,
+                    aphelionMiles: 2753855752,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 0,
+                    fillColor: "#0000FF",
+                    fillOpacity: 0.5
+                },
+                {
+                    name: "Pluto",
+                    description: "Some details about Pluto.",
+                    perihelionMiles: 2753855752,
+                    aphelionMiles: 4468632221,
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 0,
+                    fillColor: "#00FFF8",
+                    fillOpacity: 0.35
+                }
+            ];
+
+            // define map in global scope
             let map;
 
             function initMap() {
-                const planetOptions = {
-                    "mercury": {
-                        minMiles: .52,
-                        maxMiles: .79,
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 0,
-                        fillColor: "#FF0000",
-                        fillOpacity: 0.35
-                    },
-                    "venus": {
-                        minMiles: 1.21,
-                        maxMiles: 1.23,
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 0,
-                        fillColor: "#00FF00",
-                        fillOpacity: 0.35
-                    },
-                    "earth": {
-                        minMiles: 1.66,
-                        maxMiles: 1.71,
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 0,
-                        fillColor: "#005CFF",
-                        fillOpacity: 0.35
-                    },
-                    "mars": {
-                        minMiles: 2.33,
-                        maxMiles: 2.81,
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 0,
-                        fillColor: "#FF0000",
-                        fillOpacity: 0.35
-                    },
-                    "asteroids": {
-                        minMiles: 2.99,
-                        maxMiles: 6.51,
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 0,
-                        fillColor: "#A2A2A3",
-                        fillOpacity: 0.25
-                    },
-                    "jupiter": {
-                        minMiles: 8.35,
-                        maxMiles: 9.20,
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 0,
-                        fillColor: "#F96806",
-                        fillOpacity: 0.35
-                    },
-                    "saturn": {
-                        minMiles: 15.21,
-                        maxMiles: 16.95,
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 0,
-                        fillColor: "#FF00FF",
-                        fillOpacity: 0.35
-                    },
-                    "uranus": {
-                        minMiles: 30.90,
-                        maxMiles: 33.85,
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 0,
-                        fillColor: "#00FF67",
-                        fillOpacity: 0.35
-                    },
-                    "neptune": {
-                        minMiles: 50.09,
-                        maxMiles: 51.23,
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 0,
-                        fillColor: "#0000FF",
-                        fillOpacity: 0.35
-                    },
-                    "pluto": {
-                        minMiles: 50.00,
-                        maxMiles: 83.13,
-                        strokeColor: "#0000FF",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 0,
-                        fillColor: "#00FFF8",
-                        fillOpacity: 0.20
-                    }
-                };
+
                 const center = new google.maps.LatLng(36.121274, -115.161971);
-                let planetDonut;
-                let mapOptions = {
+                const mapOptions = {
                     center: center,
-                    zoom: 20,
-                    //       mapTypeId: google.maps.MapTypeId.ROADMAP,
                     mapTypeId: google.maps.MapTypeId.HYBRID,
                     tilt: 0
                 };
 
                 map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 
-                for (let planet in planetOptions) {
-                    // Construct the circle for each value in planetOptions.
-                    let donutOptions = {
-                        paths: [drawCircle(center, planetOptions[planet].maxMiles, -1),
-                        drawCircle(center, planetOptions[planet].minMiles, 1)],
-                        strokeColor: planetOptions[planet].strokeColor,
-                        strokeOpacity: planetOptions[planet].strokeOpacity,
-                        strokeWeight: planetOptions[planet].strokeWeight,
-                        fillColor: planetOptions[planet].fillColor,
-                        fillOpacity: planetOptions[planet].fillOpacity
-                    };
+                for (let i = 0; i < planets.length; i++) {
+                    let planet = planets[i];
 
-                    planetDonut = new google.maps.Polygon(donutOptions);
+                    planet.aphelionMilesScaled = planet.aphelionMiles * scaleFactor;
+                    planet.perihelionMilesScaled = planet.perihelionMiles * scaleFactor;
 
-                    planetDonut.setMap(map);
+                    planet.paths = [
+                        drawCircle(center, planet.aphelionMilesScaled, -1),
+                        drawCircle(center, planet.perihelionMilesScaled, 1)
+                    ]
+
+                    let planetApsides = new google.maps.Polygon(planet);
+
+                    planetApsides.setMap(map);
+                    planetApsides.set("name", planet.name);
+
+                    planetApsides.addListener("click", function (event) {
+                        clearInterval(intervalId);
+                        let widthMiles = Math.round(this.aphelionMiles - this.perihelionMiles);
+                        let widthKilometers = Math.round(widthMiles * 1.609344);
+                        let widthScaledFeet = Math.round((this.aphelionMilesScaled - this.perihelionMilesScaled) * 5280)
+                        let widthScaledMeters = Math.round(widthScaledFeet * 0.3048);
+                        infoWindow.setContent(`
+                        <div class="infoWindow">
+                            <strong>Apsides of ${this.name}</strong><br>
+                            <hr>
+                            <table>
+                                <tr>
+                                    <td>Click location:</td><td>${event.latLng.lat().toFixed(6)} lat</td><td>${event.latLng.lng().toFixed(6)} lon</td>
+                                </tr><tr>
+                                    <td>Apsides width actual:</td><td>${widthMiles.toLocaleString()} mi</td><td>${widthKilometers.toLocaleString()} km</td>
+                                </tr><tr>
+                                    <td>Apsides width scaled:</td><td>${widthScaledFeet.toLocaleString()} ft</td><td>${widthScaledMeters.toLocaleString()} m</td>
+                                </tr><tr>
+                                    <td>Perihelion:</td><td>${this.perihelionMiles.toLocaleString()} mi</td><td>${(Math.round(this.aphelionMiles * 1.609344)).toLocaleString()} km</td>
+                                </tr><tr>
+                                    <td>Aphelion:</td><td>${this.aphelionMiles.toLocaleString()} mi</td><td>${Math.round((this.perihelionMiles * 1.609344)).toLocaleString()} km</td>
+                                </tr>
+                            </table>
+                            <hr>
+                            ${this.description}
+                        </div>
+                        `);
+                        infoWindow.setPosition(event.latLng);
+                        infoWindow.open(map);
+                    });
 
                 }
 
-                const imageBounds = new google.maps.LatLngBounds(
+
+                const infoWindow = new google.maps.InfoWindow();
+                infoWindow.addListener("closeclick", function () {
+                    intervalId = window.setInterval(zoomOut, 2000);
+                });
+
+                const sunImageBounds = new google.maps.LatLngBounds(
                     new google.maps.LatLng(36.120682, -115.162797), // lower left
                     new google.maps.LatLng(36.121921, -115.161256)  // upper right
                 );
-
                 const sunIcon = new google.maps.GroundOverlay(
                     "./img/sun-icon.png",
-                    imageBounds);
-
+                    sunImageBounds);
                 sunIcon.setMap(map);
 
-                map.setZoom(20)
-                setTimeout("map.setZoom(18)", 3000)
-                setTimeout("map.setZoom(16)", 5000)
-                setTimeout("map.setZoom(13)", 7000)
-                setTimeout("map.setZoom(10)", 9000)
+                sunIcon.addListener("click", function (event) {
+                    clearInterval(intervalId);
+                    infoWindow.setContent(`
+                        <div class="infoWindow">
+                            <strong>The Sun</strong><br>
+                            <hr>
+                            <table>
+                                <tr>
+                                    <td>Click location:</td><td>${event.latLng.lat().toFixed(6)} lat</td><td>${event.latLng.lng().toFixed(6)} lon</td>
+                                </tr><tr>
+                                    <td>Diameter actual:</td><td>${(865370).toLocaleString()} mi</td><td>${Math.round((865370 * 1.609344)).toLocaleString()} km</td>
+                                </tr><tr>
+                                    <td>Diameter scaled:</td><td>${(491).toLocaleString()} ft</td><td>${Math.round((491 * 0.3048)).toLocaleString()} m</td>
+                                </tr>
+                            </table>
+                            <hr>
+                            Stuff about The Sun and/or The Sphere.
+                        </div>
+                    `);
+                    infoWindow.setPosition(event.latLng);
+                    infoWindow.open(map);
+                });
 
+                map.setZoom(zoomLevels[0])
+
+                intervalId = window.setInterval(zoomOut, 2000);
             }
 
-            function drawCircle(point, radius, dir) {
-                const d2r = Math.PI / 180;   // degrees to radians
-                const r2d = 180 / Math.PI;   // radians to degrees
-                const earthsradius = 3963;   // 3963 is the radius of the earth in miles
-                const points = 32;
+            const zoomLevels = [19, 17, 15, 12, 9, 6];
+            let i = 1;
+            let intervalId;
 
-                // find the raidus in lat/lon
+            function zoomOut() {
+                if (i < zoomLevels.length) {
+                    map.setZoom(zoomLevels[i]);
+                    i++;
+                } else {
+                    clearInterval(intervalId);
+                }
+            }
+
+            const d2r = Math.PI / 180;   // degrees to radians
+            const r2d = 180 / Math.PI;   // radians to degrees
+            const earthsradius = 3963;   // 3963 is the radius of the earth in miles
+
+            function drawCircle(point, radius, dir) {
                 const rlat = (radius / earthsradius) * r2d;
                 const rlng = rlat / Math.cos(point.lat() * d2r);
 
-                let extp = [];
-                let start = points + 1;
-                let end = 0;
-                if (dir == 1) {
-                    start = 0;
-                    end = points + 1;
-                }
-
-                for (let i = start; (dir == 1 ? i < end : i > end); i = i + dir) {
-                    const theta = Math.PI * (i / (points / 2));
-                    ey = point.lng() + (rlng * Math.cos(theta)); // center a + radius x * cos(theta)
-                    ex = point.lat() + (rlat * Math.sin(theta)); // center b + radius y * sin(theta)
+                const extp = [];
+                let i = dir === 1 ? 0 : 32;
+                while (dir === 1 ? i < 33 : i > 0) {
+                    const theta = Math.PI * (i / 16);
+                    const ey = point.lng() + (rlng * Math.cos(theta));
+                    const ex = point.lat() + (rlat * Math.sin(theta));
                     extp.push(new google.maps.LatLng(ex, ey));
+                    i = i + dir;
                 }
                 return extp;
             }
@@ -331,6 +421,7 @@
             src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFJ8V1qydk_HtNbvdlkK2yAkYf5GXNhTI&callback=initMap"
             async defer>
             </script>
+        <hr>
         <footer>
             <p>&copy; 2005 -
                 <script>document.write(new Date().getFullYear())</script> by Jack Anderson, all rights reserved.
