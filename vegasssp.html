@@ -61,6 +61,7 @@
                 padding-right: 10px;
                 text-align: right;
             }
+
             .infoWindow hr {
                 margin: 10px;
             }
@@ -162,7 +163,7 @@
 
         <script type="text/javascript">
 
-            const scaleFactor = 0.000000107459727333307;
+            const scaleFactor = 0.0000000978299350671862;
             const planets = [
                 {
                     name: "Mercury",
@@ -364,9 +365,9 @@
                                 <tr>
                                     <td>Click location:</td><td>${event.latLng.lat().toFixed(6)} lat</td><td>${event.latLng.lng().toFixed(6)} lon</td>
                                 </tr><tr>
-                                    <td>Diameter actual:</td><td>${(865370).toLocaleString()} mi</td><td>${Math.round((865370 * 1.609344)).toLocaleString()} km</td>
+                                    <td>Diameter actual:</td><td>${(864948).toLocaleString()} mi</td><td>${Math.round((864948 * 1.609344)).toLocaleString()} km</td>
                                 </tr><tr>
-                                    <td>Diameter scaled:</td><td>${(491).toLocaleString()} ft</td><td>${Math.round((491 * 0.3048)).toLocaleString()} m</td>
+                                    <td>Diameter scaled:</td><td>${(447).toLocaleString()} ft</td><td>${Math.round((447 * 0.3048)).toLocaleString()} m</td>
                                 </tr>
                             </table>
                             <hr>
@@ -376,6 +377,34 @@
                     infoWindow.setPosition(event.latLng);
                     infoWindow.open(map);
                 });
+
+                const earthPosition = new google.maps.LatLng(36.213146, -115.049616);
+                const earthMarker = new google.maps.Marker({
+                    position: earthPosition,
+                    map: map
+                });
+                earthMarker.addListener("click", function (event) {
+                    clearInterval(intervalId);
+                    infoWindow.setContent(`
+                        <div class="infoWindow">
+                            <strong>Earth Model</strong><br>
+                            <hr>
+                            <table>
+                                <tr>
+                                    <td>Model location:</td><td>${earthPosition.lat().toFixed(6)} lat</td><td>${earthPosition.lng().toFixed(6)} lon</td>
+                                </tr><tr>
+                                    <td>Diameter actual:</td><td>${(7918).toLocaleString()} mi</td><td>${Math.round((7918 * 1.609344)).toLocaleString()} km</td>
+                                </tr><tr>
+                                    <td>Diameter scaled:</td><td>${(1).toLocaleString()} ft</td><td>${Math.round((1 * 0.3048)).toLocaleString()} m</td>
+                                </tr>
+                            </table>
+                            <hr>
+                            Stuff about Earth model.
+                        </div>
+                    `);
+                    infoWindow.setPosition(event.latLng);
+                    infoWindow.open(map);
+                });                
 
                 map.setZoom(zoomLevels[0])
 
