@@ -154,117 +154,227 @@
 
         <script type="text/javascript">
 
-            const scaleFactor = 0.0000000181652899565469;
-            const planets = [
+            const unitConvertKmToMeters = 1000;
+            const unitConvertKmToMiles = 0.621371;
+            const unitConvertMiToKilometers = 1.609344;
+            const unitConvertKmToFeet = 3280.84;
+            const unitConvertFtToMeters = 0.3048;
+            const unitConvertFtToKilometers = unitConvertFtToMeters / 1000;
+            
+            const sunDiameterKilometers = 1392700;
+            const sunDiameterScaledFeet = 83;
+            const sunDiameterScaledKilometers = sunDiameterScaledFeet * unitConvertFtToKilometers;
+            const scaleFactor = sunDiameterScaledKilometers / sunDiameterKilometers;
+
+            /**
+            // sanity checks
+            console.log(scaleFactor);                                                 // 1.816500323113377e-8
+            console.log(sunDiameterKilometers * scaleFactor);                         // 0.025298400000000002
+            console.log(sunDiameterKilometers * scaleFactor * unitConvertKmToMeters); // 25.2984
+            console.log(sunDiameterScaledFeet * unitConvertFtToMeters);               // 25.2984
+            console.log(sunDiameterKilometers * scaleFactor * unitConvertKmToFeet);   // 83.000002656
+            **/
+            
+            const bodies = [
                 {
                     name: "Mercury",
                     description: "Some details about Mercury.",
-                    perihelionMiles: 27952469,
-                    aphelionMiles: 42466251,
+                    perihelionKilometers: 27952469 * unitConvertMiToKilometers,
+                    aphelionKilometers: 42466251 * unitConvertMiToKilometers,
                     strokeColor: "#0000FF",
                     strokeOpacity: 0.8,
                     strokeWeight: 0,
                     fillColor: "#FF0000",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    markers: [
+                        {
+                            name: "",
+                            description: "",
+                            diameterKilometers: 0,
+                            latitude: 0,
+                            longitude: 0,
+                        }
+                    ]
                 },
                 {
                     name: "Venus",
                     description: "Some details about Venus.",
-                    perihelionMiles: 65043245,
-                    aphelionMiles: 66118340,
+                    perihelionKilometers: 65043245 * unitConvertMiToKilometers,
+                    aphelionKilometers: 66118340 * unitConvertMiToKilometers,
                     strokeColor: "#0000FF",
                     strokeOpacity: 0.8,
                     strokeWeight: 0,
                     fillColor: "#00FF00",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    markers: [
+                        {
+                            name: "",
+                            description: "",
+                            diameterKilometers: 0,
+                            latitude: 0,
+                            longitude: 0,
+                        }
+                    ]
                 },
                 {
                     name: "Earth",
                     description: "Some details about Earth.",
-                    perihelionMiles: 89232882,
-                    aphelionMiles: 91920619,
+                    perihelionKilometers: 89232882 * unitConvertMiToKilometers,
+                    aphelionKilometers: 91920619 * unitConvertMiToKilometers,
                     strokeColor: "#0000FF",
                     strokeOpacity: 0.8,
                     strokeWeight: 0,
                     fillColor: "#005CFF",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    markers: [
+                        {
+                            name: "Earth",
+                            description: "Stuff about Earth model.",
+                            diameterKilometers: 12756,
+                            latitude: 34.134437,
+                            longitude: -118.320748,
+                        }
+                    ]
                 },
                 {
                     name: "Mars",
                     description: "Some details about Mars.",
-                    perihelionMiles: 125248563,
-                    aphelionMiles: 151050843,
+                    perihelionKilometers: 125248563 * unitConvertMiToKilometers,
+                    aphelionKilometers: 151050843 * unitConvertMiToKilometers,
                     strokeColor: "#0000FF",
                     strokeOpacity: 0.8,
                     strokeWeight: 0,
                     fillColor: "#FF0000",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    markers: [
+                        {
+                            name: "",
+                            description: "",
+                            diameterKilometers: 0,
+                            latitude: 0,
+                            longitude: 0,
+                        }
+                    ]
                 },
                 {
                     name: "Asteroid Belt",
                     description: "Some details about the Asteroid Belt.",
-                    perihelionMiles: 160726697,
-                    aphelionMiles: 349943411,
+                    perihelionKilometers: 160726697 * unitConvertMiToKilometers,
+                    aphelionKilometers: 349943411 * unitConvertMiToKilometers,
                     strokeColor: "#0000FF",
                     strokeOpacity: 0.8,
                     strokeWeight: 0,
                     fillColor: "#A2A2A3",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    markers: [
+                        {
+                            name: "",
+                            description: "",
+                            diameterKilometers: 0,
+                            latitude: 0,
+                            longitude: 0,
+                        }
+                    ]
                 },
                 {
                     name: "Jupiter",
                     description: "Some details about Jupiter.",
-                    perihelionMiles: 448852148,
-                    aphelionMiles: 494543684,
+                    perihelionKilometers: 448852148 * unitConvertMiToKilometers,
+                    aphelionKilometers: 494543684 * unitConvertMiToKilometers,
                     strokeColor: "#0000FF",
                     strokeOpacity: 0.8,
                     strokeWeight: 0,
                     fillColor: "#F96806",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    markers: [
+                        {
+                            name: "",
+                            description: "",
+                            diameterKilometers: 0,
+                            latitude: 0,
+                            longitude: 0,
+                        }
+                    ]
                 },
                 {
                     name: "Saturn",
                     description: "Some details about Saturn.",
-                    perihelionMiles: 817609721,
-                    aphelionMiles: 911142983,
+                    perihelionKilometers: 817609721 * unitConvertMiToKilometers,
+                    aphelionKilometers: 911142983 * unitConvertMiToKilometers,
                     strokeColor: "#0000FF",
                     strokeOpacity: 0.8,
                     strokeWeight: 0,
                     fillColor: "#FF00FF",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    markers: [
+                        {
+                            name: "",
+                            description: "",
+                            diameterKilometers: 0,
+                            latitude: 0,
+                            longitude: 0,
+                        }
+                    ]
                 },
                 {
                     name: "Uranus",
                     description: "Some details about Uranus.",
-                    perihelionMiles: 1661021720,
-                    aphelionMiles: 1819598228,
+                    perihelionKilometers: 1661021720 * unitConvertMiToKilometers,
+                    aphelionKilometers: 1819598228 * unitConvertMiToKilometers,
                     strokeColor: "#0000FF",
                     strokeOpacity: 0.8,
                     strokeWeight: 0,
                     fillColor: "#00FF67",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    markers: [
+                        {
+                            name: "",
+                            description: "",
+                            diameterKilometers: 0,
+                            latitude: 0,
+                            longitude: 0,
+                        }
+                    ]
                 },
                 {
                     name: "Neptune",
                     description: "Some details about Neptune.",
-                    perihelionMiles: 2692575339,
-                    aphelionMiles: 2753855752,
+                    perihelionKilometers: 2692575339 * unitConvertMiToKilometers,
+                    aphelionKilometers: 2753855752 * unitConvertMiToKilometers,
                     strokeColor: "#0000FF",
                     strokeOpacity: 0.8,
                     strokeWeight: 0,
                     fillColor: "#0000FF",
-                    fillOpacity: 0.5
+                    fillOpacity: 0.5,
+                    markers: [
+                        {
+                            name: "",
+                            description: "",
+                            diameterKilometers: 0,
+                            latitude: 0,
+                            longitude: 0,
+                        }
+                    ]
                 },
                 {
                     name: "Pluto",
                     description: "Some details about Pluto.",
-                    perihelionMiles: 2753855752,
-                    aphelionMiles: 4468632221,
+                    perihelionKilometers: 2753855752 * unitConvertMiToKilometers,
+                    aphelionKilometers: 4468632221 * unitConvertMiToKilometers,
                     strokeColor: "#0000FF",
                     strokeOpacity: 0.8,
                     strokeWeight: 0,
                     fillColor: "#00FFF8",
-                    fillOpacity: 0.35
+                    fillOpacity: 0.35,
+                    markers: [
+                        {
+                            name: "",
+                            description: "",
+                            diameterKilometers: 0,
+                            latitude: 0,
+                            longitude: 0,
+                        }
+                    ]
                 }
             ];
 
@@ -282,28 +392,22 @@
 
                 map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
 
-                for (let i = 0; i < planets.length; i++) {
-                    let planet = planets[i];
+                for (let i = 0; i < bodies.length; i++) {
+                    let body = bodies[i];
 
-                    planet.aphelionMilesScaled = planet.aphelionMiles * scaleFactor;
-                    planet.perihelionMilesScaled = planet.perihelionMiles * scaleFactor;
-
-                    planet.paths = [
-                        drawCircle(center, planet.aphelionMilesScaled, -1),
-                        drawCircle(center, planet.perihelionMilesScaled, 1)
+                    body.paths = [
+                        drawCircle(center, body.aphelionKilometers * scaleFactor, -1),
+                        drawCircle(center, body.perihelionKilometers * scaleFactor, 1)
                     ]
+                    body.apsidesWidthKilometers = Math.round(body.aphelionKilometers - body.perihelionKilometers);
 
-                    let planetApsides = new google.maps.Polygon(planet);
+                    let bodyApsides = new google.maps.Polygon(body);
 
-                    planetApsides.setMap(map);
-                    planetApsides.set("name", planet.name);
+                    bodyApsides.setMap(map);
+                    bodyApsides.set("name", body.name);
 
-                    planetApsides.addListener("click", function (event) {
+                    bodyApsides.addListener("click", function (event) {
                         clearInterval(intervalId);
-                        let widthMiles = Math.round(this.aphelionMiles - this.perihelionMiles);
-                        let widthKilometers = Math.round(widthMiles * 1.609344);
-                        let widthScaledFeet = Math.round((this.aphelionMilesScaled - this.perihelionMilesScaled) * 5280)
-                        let widthScaledMeters = Math.round(widthScaledFeet * 0.3048);
                         infoWindow.setContent(`
                         <div class="infoWindow">
                             <strong>Apsides of ${this.name}</strong><br>
@@ -312,13 +416,13 @@
                                 <tr>
                                     <td>Click location:</td><td>${event.latLng.lat().toFixed(6)} lat</td><td>${event.latLng.lng().toFixed(6)} lon</td>
                                 </tr><tr>
-                                    <td>Apsides width actual:</td><td>${widthMiles.toLocaleString()} mi</td><td>${widthKilometers.toLocaleString()} km</td>
+                                    <td>Apsides width actual:</td><td>${Math.round(this.apsidesWidthKilometers * unitConvertKmToMiles).toLocaleString()} mi</td><td>${(this.apsidesWidthKilometers).toLocaleString()} km</td>
                                 </tr><tr>
-                                    <td>Apsides width scaled:</td><td>${widthScaledFeet.toLocaleString()} ft</td><td>${widthScaledMeters.toLocaleString()} m</td>
+                                    <td>Apsides width scaled:</td><td>${Math.round(this.apsidesWidthKilometers * scaleFactor * unitConvertKmToFeet).toLocaleString()} ft</td><td>${Math.round(this.apsidesWidthKilometers * scaleFactor * unitConvertKmToMeters).toLocaleString()} m</td>
                                 </tr><tr>
-                                    <td>Perihelion:</td><td>${this.perihelionMiles.toLocaleString()} mi</td><td>${(Math.round(this.aphelionMiles * 1.609344)).toLocaleString()} km</td>
+                                    <td>Perihelion:</td><td>${Math.round(this.perihelionKilometers * unitConvertKmToMiles).toLocaleString()} mi</td><td>${Math.round(this.perihelionKilometers).toLocaleString()} km</td>
                                 </tr><tr>
-                                    <td>Aphelion:</td><td>${this.aphelionMiles.toLocaleString()} mi</td><td>${Math.round((this.perihelionMiles * 1.609344)).toLocaleString()} km</td>
+                                    <td>Aphelion:</td><td>${Math.round(this.aphelionKilometers * unitConvertKmToMiles).toLocaleString()} mi</td><td>${Math.round(this.aphelionKilometers).toLocaleString()} km</td>
                                 </tr>
                             </table>
                             <hr>
@@ -329,8 +433,40 @@
                         infoWindow.open(map);
                     });
 
-                }
+                    for (let i = 0; i < body.markers.length; i++) {
+                        if (body.markers[i].diameterKilometers === 0) { break; }
+                        const markerData = body.markers[i];
+                        const objectPosition = new google.maps.LatLng(markerData.latitude, markerData.longitude);
+                        const marker = new google.maps.Marker({
+                            position: objectPosition,
+                            map: map,
+                            data: markerData
+                        });
+                        marker.addListener("click", function (event) {
+                            clearInterval(intervalId);
+                            infoWindow.setContent(`
+                                <div class="infoWindow">
+                                    <strong>${this.data.name} Model</strong><br>
+                                    <hr>
+                                    <table>
+                                        <tr>
+                                            <td>Model location:</td><td>${objectPosition.lat().toFixed(6)} lat</td><td>${objectPosition.lng().toFixed(6)} lon</td>
+                                        </tr><tr>
+                                            <td>Diameter actual:</td><td>${Math.round(this.data.diameterKilometers * unitConvertKmToMiles).toLocaleString()} mi</td><td>${Math.round(this.data.diameterKilometers).toLocaleString()} km</td>
+                                        </tr><tr>
+                                            <td>Diameter scaled:</td><td>${(this.data.diameterKilometers * scaleFactor * unitConvertKmToFeet).toFixed(1).toLocaleString()} ft</td><td>${(this.data.diameterKilometers * scaleFactor * unitConvertKmToMeters).toFixed(1).toLocaleString()} m</td>
+                                        </tr>
+                                    </table>
+                                    <hr>
+                                    Stuff about Earth model from the loop.
+                                </div>
+                            `);
+                            infoWindow.setPosition(event.latLng);
+                            infoWindow.open(map);
+                        });
+                    }
 
+                }
 
                 const infoWindow = new google.maps.InfoWindow();
                 infoWindow.addListener("closeclick", function () {
@@ -356,9 +492,9 @@
                                 <tr>
                                     <td>Click location:</td><td>${event.latLng.lat().toFixed(6)} lat</td><td>${event.latLng.lng().toFixed(6)} lon</td>
                                 </tr><tr>
-                                    <td>Diameter actual:</td><td>${(864948).toLocaleString()} mi</td><td>${Math.round((864948 * 1.609344)).toLocaleString()} km</td>
+                                    <td>Diameter actual:</td><td>${Math.round(sunDiameterKilometers * unitConvertKmToMiles).toLocaleString()} mi</td><td>${Math.round(sunDiameterKilometers).toLocaleString()} km</td>
                                 </tr><tr>
-                                    <td>Diameter scaled:</td><td>${(83).toLocaleString()} ft</td><td>${Math.round((83 * 0.3048)).toLocaleString()} m</td>
+                                    <td>Diameter scaled:</td><td>${Math.round(sunDiameterScaledKilometers * unitConvertKmToFeet).toLocaleString()} ft</td><td>${Math.round((sunDiameterScaledKilometers * unitConvertKmToMeters)).toLocaleString()} m</td>
                                 </tr>
                             </table>
                             <hr>
@@ -389,7 +525,7 @@
 
             const d2r = Math.PI / 180;   // degrees to radians
             const r2d = 180 / Math.PI;   // radians to degrees
-            const earthsradius = 3963;   // 3963 is the radius of the earth in miles
+            const earthsradius = 6378;   // 6378 is the radius of the earth in kilometers
 
             function drawCircle(point, radius, dir) {
                 const rlat = (radius / earthsradius) * r2d;
