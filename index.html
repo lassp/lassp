@@ -1,582 +1,1418 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <title>LASSP</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>LASSP</title>
 
-    <link rel="icon" type="image/x-icon" href="./img/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="./img/favicon.ico" />
 
-    <link rel="stylesheet" href="./css/bootstrap-responsive.min.css">
-    <link rel="stylesheet" href="./css/style.css">
-    <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <style>
+    /* ==============
+       Base / Reset
+       ============== */
+    :root {
+      --page-bg: #ffffff;
+      --page-text: #111827;
+      --muted-text: #4b5563;
+      --link: #0b5bd3;
+      --link-hover: #0848a8;
 
-    <!--[if lt IE 9]>
-    <script type="text/javascript" src="./js/html5.js"></script>
-    <![endif]-->
-    <script type="text/javascript" src="./js/jquery.min.js"></script>
-    <script type="text/javascript" src="./js/bootstrap.min.js"></script>
+      --nav-bg: #0f172a;
+      --nav-bg-image: url("./img/sun-icon-256.png");
+      --nav-text: #e5e7eb;
+      --nav-accent: #fff200;
 
+      --surface: #ffffff;
+      --surface-border: rgba(0,0,0,0.10);
+
+      --max-width: 1100px;
+
+      /* Map header height (used only if you choose to make the map full-height later) */
+      --nav-h: 56px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--page-bg);
+      color: var(--page-text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    a { color: var(--link); text-decoration: none; }
+    a:hover { color: var(--link-hover); text-decoration: underline; }
+
+    /* ==============
+       Layout
+       ============== */
+    .nav {
+        position: sticky;
+        top: 0;
+        z-index: 3000;
+
+        /* fallback */
+        background-color: var(--nav-bg);
+
+        /* overlay + unscaled image, pinned left */
+        background-image:
+            linear-gradient(rgba(15, 23, 42, 0), rgba(15, 23, 42, 0.48)),
+            var(--nav-bg-image);
+
+        background-size: auto, auto;
+        background-position: 0 0, left top;
+        background-repeat: repeat, no-repeat;
+
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .nav-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 16px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      color: var(--nav-text);
+      white-space: nowrap;
+    }
+
+    .lassp-yellow { color: var(--nav-accent); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .nav-links a {
+      color: var(--nav-text);
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+
+    .nav-links a:hover {
+      background: rgba(255,255,255,0.08);
+      text-decoration: none;
+    }
+
+    /* ===== Nav dropdown (Model) ===== */
+    .nav-links details {
+        position: relative;
+    }
+
+    .nav-links summary {
+        list-style: none;
+        cursor: pointer;
+        color: var(--nav-text);
+        padding: 8px 10px;
+        border-radius: 10px;
+        user-select: none;
+    }
+    .nav-links summary::-webkit-details-marker { display: none; }
+
+    .nav-links details[open] summary,
+    .nav-links summary:hover {
+        background: rgba(255,255,255,0.08);
+    }
+
+    .nav-links .submenu {
+        position: absolute;
+        right: 0;                           /* aligns dropdown to the right edge */
+        top: calc(100% + 8px);
+        min-width: 240px;
+        max-width: 320px;
+        background: rgba(15, 23, 42, 0.98);
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 12px;
+        padding: 8px;
+        box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+        z-index: 4000;
+        max-width: calc(100vw - 24px);
+        width: max-content;                 /* shrink to content when possible */
+        max-height: min(60vh, 420px);
+        overflow: auto;
+    }
+
+    .nav-links .submenu a {
+        display: block;
+        padding: 10px 10px;
+        border-radius: 10px;
+        color: var(--nav-text);
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .nav-links .submenu a:hover {
+        background: rgba(255,255,255,0.10);
+    }
+
+    @media (max-width: 520px) {
+        .nav-links details {
+            width: 100%;
+        }
+
+        .nav-links .submenu {
+            left: 0;
+            right: 0;                         /* span full available width */
+            width: auto;
+            max-width: none;
+        }
+
+        .nav-links .submenu a {
+            white-space: normal;              /* allow wrapping instead of overflow */
+        }
+    }
+
+    .page {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    /* Map */
+    #map-canvas {
+      height: 420px;
+      width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--surface-border);
+      background: #e5e7eb;
+      position: relative; /* for modal overlay */
+    }
+
+    /* expanded state */
+    #map-canvas.is-expanded {
+        height: calc(100vh - 120px);
+    }
+
+    /* Map wrapper so we can overlay the control */
+    .map-wrap {
+        position: relative;
+    }
+
+    /* Floating map control */
+    .map-toggle--floating {
+        position: absolute;
+        left: 50%;
+        bottom: 12px;
+        transform: translateX(-50%);
+        z-index: 10;           /* keep it simple; it's above the map because it's a sibling */
+    }
+
+    /* Keep it subtle + readable */
+    .map-toggle {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(0,0,0,0.18);
+        background: rgba(255,255,255,0.85);
+        color: #111827;
+        font-size: 13px;
+        font-weight: 650;
+        cursor: pointer;
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    }
+
+    .map-toggle:hover {
+        background: rgba(255,255,255,0.95);
+    }
+
+    /* Dark mode */
+    @media (prefers-color-scheme: dark) {
+        .map-toggle {
+            border-color: rgba(255,255,255,0.18);
+            background: rgba(17,24,39,0.80);
+            color: #e8eaf0;
+        }
+        .map-toggle:hover {
+            background: rgba(17,24,39,0.92);
+        }
+    }
+
+    .is-hidden { display: none !important; }
+
+    /* Content grid (Flexbox) */
+    .content-grid {
+      margin-top: 18px;
+      display: flex;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .card {
+      flex: 1 1 0;
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      border-radius: 14px;
+      padding: 16px 16px 14px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px 0;
+      font-size: 20px;
+      line-height: 1.25;
+    }
+
+    .card p, .card dd {
+      color: var(--page-text);
+      margin: 0 0 12px 0;
+    }
+
+    .card dl { margin: 0; }
+    .card dt { font-weight: 700; margin-top: 10px; }
+    .card dd { margin-left: 0; color: var(--muted-text); }
+
+    blockquote {
+      margin: 14px 0 0;
+      padding-left: 12px;
+      border-left: 4px solid rgba(0,0,0,0.12);
+      color: var(--muted-text);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.12);
+      background: #f3f4f6;
+      color: #111827;
+      font-weight: 650;
+      text-decoration: none;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .btn:hover { background: #e5e7eb; text-decoration: none; }
+
+    .btn-success {
+      background: #16a34a;
+      border-color: rgba(0,0,0,0.08);
+      color: white;
+    }
+    .btn-success:hover { background: #12843d; }
+
+    /* Footer */
+    footer {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(0,0,0,0.10);
+      color: rgba(17,24,39,0.7);
+      font-size: 14px;
+    }
+
+    /* ==============
+       Responsive: stack to single column on medium screens and smaller
+       ============== */
+    @media (max-width: 980px) {
+      .content-grid {
+        flex-direction: column;
+      }
+      #map-canvas { height: 520px; }
+    }
+
+    @media (max-width: 520px) {
+      .nav-inner { flex-wrap: wrap; }
+      .brand { white-space: normal; }
+      #map-canvas { height: 560px; }
+    }
+
+    /* ============================
+       Google Maps InfoWindow (keep legible; opt-out of dark text bleed)
+       ============================ */
+    .infoWindow td {
+      padding-right: 10px;
+      text-align: right;
+    }
+    .infoWindow hr { margin: 10px; }
+
+    /* ============================
+       Custom full-map modal overlay
+       ============================ */
+    /* Hide declarative templates */
+    .map-overlay { display: none; }
+
+    .map-modal-backdrop {
+      position: absolute;
+      inset: 0;
+      z-index: 2500;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+
+    .map-modal-panel {
+      width: min(900px, calc(100% - 32px));
+      height: min(700px, calc(100% - 32px));
+      background: var(--overlay-color, #0087CD);
+      color: var(--overlay-text, #ffffff);
+      font-family: Arial, sans-serif;
+      border-radius: 14px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      pointer-events: auto;
+    }
+
+    .map-modal-header {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.22);
+    }
+
+    .map-modal-titleRow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .map-modal-titleIcon {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .map-modal-titleIcon svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    .map-modal-title {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: inherit;
+    }
+
+    .map-modal-close {
+      appearance: none;
+      border: 0;
+      background: rgba(255,255,255,0.18);
+      color: inherit;
+      border-radius: 10px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 36px;
+      text-align: center;
+      flex: 0 0 auto;
+    }
+    .map-modal-close:hover { background: rgba(255,255,255,0.28); }
+
+    .map-modal-body {
+      padding: 16px 18px 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow: auto;
+      flex: 1 1 auto;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+    }
+    .map-modal-body p { margin: 0 0 12px 0; }
+
+    /* footer container */
+    .map-modal-footer {
+        margin-top: auto;      /* pushes to bottom */
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* style for the link */
+    .map-modal-footer a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: rgba(255,255,255,0.12);
+        color: inherit;
+        text-decoration: none;
+        font-weight: 650;
+        font-size: 13px;
+
+        /* subtle by default */
+        opacity: 0.72;
+        transition: opacity 180ms ease, background 180ms ease, transform 180ms ease, border-color 180ms ease;
+    }
+
+    .map-modal-footer a:hover {
+        opacity: 1;
+        background: rgba(255,255,255,0.18);
+        border-color: rgba(255,255,255,0.30);
+        transform: translateY(-1px);
+    }
+
+    /* Small arrow icon */
+    .map-modal-footer a .icon {
+        width: 14px;
+        height: 14px;
+        display: inline-block;
+        flex: 0 0 auto;
+    }
+
+    /* Fade-in on open */
+    .map-modal-panel {
+        animation: modalFadeIn 180ms ease-out both;
+    }
+
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==============
+       Dark mode (page) — InfoWindow stays readable
+       ============== */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+
+        --page-bg: #212328;
+        --page-text: #e8eaf0;
+        --muted-text: rgba(243, 244, 248, 0.851);
+
+        --link: #9ecbff;
+        --link-hover: #c7e0ff;
+
+        --surface: #1c202a;
+        --surface-border: rgba(255,255,255,0.10);
+
+        --nav-bg: #0b1220;
+        --nav-text: #e8eaf0;
+      }
+
+      blockquote {
+        border-left-color: rgba(255,255,255,0.15);
+      }
+
+      footer {
+        border-top-color: rgba(255,255,255,0.10);
+        color: rgba(232,234,240,0.65);
+      }
+
+      /* Keep InfoWindow content legible on its (usually light) background */
+      .gm-style .gm-style-iw,
+      .gm-style .gm-style-iw * ,
+      .gm-style .gm-style-iw-d,
+      .gm-style .gm-style-iw-d * {
+        color: #111 !important;
+      }
+
+      /* If close (X) becomes low-contrast, this makes it visible without changing the bubble */
+      .gm-style button.gm-ui-hover-effect {
+        filter: invert(1) !important;
+      }
+
+      /* Darken the custom modal backdrop slightly in dark mode */
+      .map-modal-backdrop { background: rgba(0,0,0,0.7); }
+    }
+  </style>
 </head>
 
 <body>
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="./">
+        <span class="lassp-yellow">Los Angeles Solar System Project</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="./" aria-current="page">Home</a>
 
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </a>
-                <a class="brand" href="./"><span class="lassp-yellow">Los Angeles Solar System Project</span></a>
-                <div class="nav-collapse collapse">
-                    <ul class="nav">
-                        <li class="active"><a href="./">Home</a></li>
-                    </ul>
-                </div><!--/.nav-collapse -->
+        <details class="nav-model">
+            <summary>Model</summary>
+            <div class="submenu" id="model-submenu">
+              <!-- populated by JS -->
             </div>
-        </div>
+          </details>
+      </nav>
     </div>
-    <div class="container-fluid">
+  </header>
 
-        <style>
-            <!--
-            #map-canvas {
-                height: 400px;
-            }
-
-            #map-canvas img {
-                max-width: none;
-            }
-
-            #map-canvas label {
-                width: auto;
-                display: inline;
-            }
-
-            .infoWindow td {
-                padding-right: 10px;
-                text-align: right;
-            }
-
-            .infoWindow hr {
-                margin: 10px;
-            }
-            -->
-        </style>
-
-        <div class="row-fluid">
-            <div class="span12" id="map-canvas"></div>
+  <main class="page">
+    <section aria-label="Map">
+        <div class="map-wrap">
+          <div id="map-canvas"></div>
+      
+          <button class="map-toggle map-toggle--floating"
+                  id="map-toggle"
+                  type="button"
+                  aria-pressed="false">
+            Expand Map
+          </button>
         </div>
+      </section>
 
-        <div class="row-fluid">
+    <section class="content-grid" id="below-map-content" aria-label="Content">
+      <article class="card">
+        <h2>The LASSP Vision</h2>
+        <p>The Solar System is a grand place, wider than we can imagine, very much an empty place.</p>
+        <p>
+          If the sun were the size of the Griffith Observatory Planetarium Dome, the earth would be little
+          bigger than a soccer ball, more than a mile away. The moon would be the size of a baseball 23 feet
+          from the earth. The nearest star would be 100,000 miles above the Indian Ocean.
+        </p>
+        <p>
+          Whether you grew up with Flash Gordon, James T. Kirk, or Skywalker, no one is zooming from planet to
+          planet on a day-to-day basis. Visit our sculptural interpretation of the planets around southern
+          California to experience the size and scope of the solar system.
+        </p>
+        <blockquote>Jack Anderson<br/>Project Designer</blockquote>
+      </article>
 
-            <div class="span4">
-                <h2>
-                    The LASSP Vision
-                </h2>
-                <p>
-                    The Solar System is a grand place, wider than we can imagine, very much an empty place.
-                </p>
-                <p>
-                    If the sun were the size of the Griffith Observatory Planetarium Dome, the earth would be little
-                    bigger than a soccer ball, more than a mile away. The moon would be the size of a baseball 23 feet
-                    from the earth. The nearest star would be 100,000 miles above the Indian Ocean.
-                </p>
-                <p>
-                    Whether you grew up with Flash Gordon, James T. Kirk, or Skywalker, no one is zooming from planet to
-                    planet on a day-to-day basis. Visit our sculptural interpretation of the planets around southern
-                    California to experience the size and scope of the solar system.
-                </p>
-                <blockquote>Jack Anderson<br>Project Designer</blockquote>
+      <article class="card">
+        <h2>The Model</h2>
+        <dl>
+          <dt>The Sun</dt>
+          <dd>
+            The scale of the project is determined by the size of the planetarium dome. At 83 feet, it is 55
+            million times smaller than the sun.
+          </dd>
+
+          <dt>The Terrestrial Planets</dt>
+          <dd>
+            Planets orbit the Sun on an elliptical path. The circles represent the aphelion (furthest) and
+            perihelion (closest) points a planet travels on its way around the Sun. The apparent size of the
+            planetarium dome will match the apparent size of the sun from any point on the blue circle
+            (Earth's orbit).
+          </dd>
+
+          <dt>The Gas Giants</dt>
+          <dd>
+            The Sun represents 99% of the mass of the solar system. The Gas Giants have 99% of the remaining
+            mass consisting mostly of basic elements hydrogen, helium, carbon and oxygen. Their large size
+            let us explore spherical structures.
+          </dd>
+
+          <dt>The Dwarf Planets and Asteroids</dt>
+          <dd>
+            Thousands of objects orbit the Sun. Many, including Pluto, are resonant with the orbit of
+            Neptune. The twenty-nine largest can be placed around Southern California. One could be as far
+            as St. Louis. Proxima Centuri, the nearest star, in the model would be almost halfway to the
+            moon.
+          </dd>
+        </dl>
+      </article>
+
+      <article class="card">
+        <h2>Get Involved</h2>
+        <p>
+          The Solar System Project will provide a connection between art and science, a connection between our
+          city and our sun, a connection between our world and ourselves, and a connection between the
+          cultural and educational institutions of Los Angeles.
+        </p>
+        <p>
+          Host locations from Hollywood to Mt. Wilson and from Santa Catalina Island to Pasadena will host a
+          planet, a dwarf planet or an asteroid.
+        </p>
+        <p>
+          Visitors to these locations will connect with our city and the region in a new way. A visit to one
+          location will inspire curiosity about others. Avid astronomy fans will be compelled to visit every
+          site. School children on a field trip will see their place in the city in a new light and enjoy a
+          new perspective for their place in the universe. They will connect one with the next and connect
+          with each other.
+        </p>
+
+        <h2 style="margin-top:16px;">Contact</h2>
+        <p>Email us for more information about sponsorship or becoming a host location:</p>
+        <p>
+          <a class="btn btn-success" href="mailto:info@lassp.org" target="_blank" rel="noopener">info@lassp.org</a>
+        </p>
+      </article>
+    </section>
+
+    <!-- Marker Templates (declarative) -->
+
+    <div class="map-overlay"
+      data-lat="34.118132"
+      data-lng="-118.300373"
+      data-color="#FFF200"
+      data-text-color="#000"
+      data-icon='<svg xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 48.5 48.5" aria-hidden="true">
+        <path fill="currentColor" d="M24.25,17.869c-3.524,0-6.381,2.857-6.381,6.381s2.857,6.382,6.381,6.382c3.525,0,6.382-2.857,6.382-6.382
+        S27.775,17.869,24.25,17.869z M24.25,0C10.857,0,0,10.857,0,24.25S10.857,48.5,24.25,48.5c13.394,0,24.25-10.857,24.25-24.25
+        S37.643,0,24.25,0z M24.25,44.323c-11.085,0-20.072-8.987-20.072-20.073c0-11.086,8.987-20.073,20.072-20.073
+        c11.086,0,20.073,8.987,20.073,20.073C44.323,35.336,35.335,44.323,24.25,44.323z"/>
+      </svg>'>
+      <div data-overlay-title>The Sun</div>
+      <div data-overlay-body>
+        <p>
+          One of the seven classical planets. Called Helios by the Greeks, adopted by the Romans as Sol, our Sun comes from
+          the old Saxon Sunna. The sun is both a glorious crown and an all seeing eye in the sky. Besides naming the first
+          day of the week, we define a year by the position of the sun in the sky from one winter solstice to the next.
+        </p>
+        <p>
+          The diameter of the Planetarium dome defines the scale of the model. At 82’ 10” dome is 55 million times smaller
+          than the sun.
+        </p>
+      </div>
+    </div>
+
+    <div class="map-overlay"
+      data-lat="34.131258"
+      data-lng="-117.441084"
+      data-color="#0087CD"
+      data-text-color="#FFF"
+      data-icon='<svg xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 42.66 50.086" aria-hidden="true">
+        <path fill="currentColor" d="M37.563,0L33.08,10.679h2.729v11.26c-2.111,8.617-7.371,12.252-12.877,12.595V10.679h3.188L21.021,0
+        l-4.48,10.679h2.729v23.616c-6.227-1.174-11.941-6.121-12.879-12.356v-11.26H9.58L4.482,0L0,10.679h2.73v11.26
+        c0.445,9.423,8.213,15.742,16.539,16.742v1.782H8.754v3.97H19.27v5.653h3.662v-5.653h10.723v-3.97H22.932v-1.688
+        c7.48-0.539,14.619-5.616,16.539-16.836v-11.26h3.189L37.563,0z"/>
+      </svg>'>
+      <div data-overlay-title>Neptune</div>
+      <div data-overlay-body>
+        <p>
+          Neptune is the god of water and the sea. Galileo was the first person to see Neptune in1612. He is not credited with
+          the discovery. He thought Neptune was a "fixed star" instead of a planet. In 1846, Urbain Le Verrier made
+          calculations for the location of a new planet based on disturbances in the orbit of Uranus. Le Verrier sent a letter
+          and urged Berlin Observatory astronomer Johann Gottfried Galle to search with the observatory's refractor. On the
+          evening of 23 September 1846, the day Galle received the letter, he discovered Neptune. It was found 1° from where
+          Le Verrier had thought it would be. Neptune became the first planet to be discovered by mathematical calculations
+          instead of a telescope.
+        </p>
+        <p>
+          At the model scale of 55 million to one, Neptune is 35” (89cm) in diameter and 51 miles (82 km) from the planetarium
+          dome.
+        </p>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        &copy; 2005 -
+        <span id="year"></span>
+        by Jack Anderson, all rights reserved.
+      </p>
+      <p style="margin:0;">
+        <!-- 
+        Sun icon courtesy Dan Wiersema
+        http://www.iconarchive.com/show/solar-system-icons-by-dan-wiersma/Sun-icon.html
+        https://www.danwiersema.com/
+        -->
+      </p>
+    </footer>
+  </main>
+
+  <script>
+
+    function slugifyTitle(s) {
+    return String(s || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")      // strip diacritics
+        .replace(/&/g, " and ")
+        .replace(/[^a-z0-9]+/g, "-")          // non-alnum -> hyphen
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+    }
+
+    function buildModelMenuFromTemplates() {
+    const menu = document.getElementById("model-submenu");
+    if (!menu) return;
+
+    const templates = Array.from(document.querySelectorAll(".map-overlay"));
+    const items = templates
+        .map((el) => {
+        const title = (el.querySelector("[data-overlay-title]")?.textContent || "").trim();
+        if (!title) return null;
+        return { title, slug: slugifyTitle(title) };
+        })
+        .filter(Boolean);
+
+    // Clear any existing (in case of re-run)
+    menu.innerHTML = "";
+
+    // If none, hide the dropdown gracefully
+    const details = document.querySelector("details.nav-model");
+    if (!items.length) {
+        if (details) details.style.display = "none";
+        return;
+    }
+
+    // Build links
+    for (const item of items) {
+        const a = document.createElement("a");
+        a.textContent = item.title;
+        a.href = `./model/${item.slug}`;
+        menu.appendChild(a);
+    }
+
+    // Click outside closes the <details>
+    document.addEventListener("click", (e) => {
+        if (!details) return;
+        if (!details.contains(e.target)) details.removeAttribute("open");
+    }, { capture: true });
+    }
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    buildModelMenuFromTemplates();
+
+    const unitConvertKmToMeters = 1000;
+    const unitConvertKmToMiles = 0.621371;
+    const unitConvertMiToKilometers = 1.609344;
+    const unitConvertKmToFeet = 3280.84;
+    const unitConvertFtToMeters = 0.3048;
+    const unitConvertFtToKilometers = unitConvertFtToMeters / 1000;
+
+    const sunDiameterKilometers = 1392700;
+    const sunDiameterScaledFeet = 83;
+    const sunDiameterScaledKilometers = sunDiameterScaledFeet * unitConvertFtToKilometers;
+    const scaleFactor = sunDiameterScaledKilometers / sunDiameterKilometers;
+
+    const bodies = [
+      {
+        name: "Mercury",
+        description: "Some details about Mercury.",
+        perihelionKilometers: 27952469 * unitConvertMiToKilometers,
+        aphelionKilometers: 42466251 * unitConvertMiToKilometers,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#FF0000",
+        fillOpacity: 0.5,
+        markers: []
+      },
+      {
+        name: "Venus",
+        description: "Some details about Venus.",
+        perihelionKilometers: 65043245 * unitConvertMiToKilometers,
+        aphelionKilometers: 66118340 * unitConvertMiToKilometers,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#00FF00",
+        fillOpacity: 0.5,
+        markers: []
+      },
+      {
+        name: "Earth",
+        description: "Some details about Earth.",
+        perihelionKilometers: 89232882 * unitConvertMiToKilometers,
+        aphelionKilometers: 91920619 * unitConvertMiToKilometers,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#005CFF",
+        fillOpacity: 0.5,
+        markers: [
+          {
+            name: "Earth",
+            description: "Stuff about Earth model.",
+            diameterKilometers: 12756,
+            latitude: 34.134437,
+            longitude: -118.320748,
+          }
+        ]
+      },
+      {
+        name: "Mars",
+        description: "Some details about Mars.",
+        perihelionKilometers: 125248563 * unitConvertMiToKilometers,
+        aphelionKilometers: 151050843 * unitConvertMiToKilometers,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#FF0000",
+        fillOpacity: 0.5,
+        markers: []
+      },
+      {
+        name: "Asteroid Belt",
+        description: "Some details about the Asteroid Belt.",
+        perihelionKilometers: 160726697 * unitConvertMiToKilometers,
+        aphelionKilometers: 349943411 * unitConvertMiToKilometers,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#A2A2A3",
+        fillOpacity: 0.5,
+        markers: []
+      },
+      {
+        name: "Jupiter",
+        description: "Some details about Jupiter.",
+        perihelionKilometers: 448852148 * unitConvertMiToKilometers,
+        aphelionKilometers: 494543684 * unitConvertMiToKilometers,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#F96806",
+        fillOpacity: 0.5,
+        markers: []
+      },
+      {
+        name: "Saturn",
+        description: "Some details about Saturn.",
+        perihelionKilometers: 817609721 * unitConvertMiToKilometers,
+        aphelionKilometers: 911142983 * unitConvertMiToKilometers,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#FF00FF",
+        fillOpacity: 0.5,
+        markers: []
+      },
+      {
+        name: "Uranus",
+        description: "Some details about Uranus.",
+        perihelionKilometers: 1661021720 * unitConvertMiToKilometers,
+        aphelionKilometers: 1819598228 * unitConvertMiToKilometers,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#00FF67",
+        fillOpacity: 0.5,
+        markers: []
+      },
+      {
+        name: "Neptune",
+        description: "Some details about Neptune.",
+        perihelionKilometers: 2692575339 * unitConvertMiToKilometers,
+        aphelionKilometers: 2753855752 * unitConvertMiToKilometers,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#0000FF",
+        fillOpacity: 0.5,
+        markers: []
+      },
+      {
+        name: "Kuiper Belt and Pluto",
+        description: "Some details about the Kuiper Belt and Pluto.",
+        perihelionKilometers: 4.488e+9,
+        aphelionKilometers: 8.228e+9,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#00FFF8",
+        fillOpacity: 0.35,
+        markers: []
+      },
+      {
+        name: "Oort Cloud",
+        description: "Far, Far Away. The Oort Cloud is a spherical layer of icy objects that occupies space at a distance between about 2,000 and 100,000 astronomical units (AU) from the Sun. At the scale of the model, the aphelion meets on the opposite side of the globe at just over 6,000 AU.",
+        perihelionKilometers: 2.992e+11,
+        aphelionKilometers: 9.15e+11,
+        strokeColor: "#0000FF",
+        strokeOpacity: 0.8,
+        strokeWeight: 0,
+        fillColor: "#00FFF8",
+        fillOpacity: 0.15,
+        markers: []
+      }
+    ];
+
+    // Map in global scope (used by other helpers)
+    let map;
+
+    const zoomLevels = [21, 19, 17, 14, 11, 8];
+    let zoomIndex = 1;
+    let intervalId;
+
+    function zoomOut() {
+      if (zoomIndex < zoomLevels.length) {
+        map.setZoom(zoomLevels[zoomIndex]);
+        zoomIndex++;
+      } else {
+        clearInterval(intervalId);
+      }
+    }
+
+    const d2r = Math.PI / 180;
+    const r2d = 180 / Math.PI;
+    const earthsradius = 6378;
+
+    function drawCircle(point, radius, dir) {
+      const rlat = (radius / earthsradius) * r2d;
+      const rlng = rlat / Math.cos(point.lat() * d2r);
+
+      const extp = [];
+      let i = dir === 1 ? 0 : 32;
+
+      while (dir === 1 ? i < 33 : i > 0) {
+        const theta = Math.PI * (i / 16);
+        const ey = point.lng() + (rlng * Math.cos(theta));
+        const ex = point.lat() + (rlat * Math.sin(theta));
+        extp.push(new google.maps.LatLng(ex, ey));
+        i = i + dir;
+      }
+      return extp;
+    }
+
+    function createMapModalBinder(classSelector) {
+      return function bindModals(map) {
+        const mapDiv = map.getDiv();
+        const templateEls = Array.from(document.querySelectorAll(classSelector));
+
+        let modalBackdrop = null;
+
+        function closeModal() {
+          if (modalBackdrop) {
+            modalBackdrop.remove();
+            modalBackdrop = null;
+          }
+          document.removeEventListener("keydown", onKeyDown, true);
+        }
+
+        function onKeyDown(e) {
+          if (e.key === "Escape") closeModal();
+        }
+
+        function openModal({ titleText, bodyHTML, iconSVG, color, textColor }) {
+          closeModal();
+
+          const safeTitle = escapeHTML(titleText || "Details");
+          const cssColor = (color && String(color).trim()) || "#0087CD";
+          const cssText = (textColor && String(textColor).trim()) || "#ffffff";
+          const iconHTML = iconSVG ? `<span class="map-modal-titleIcon" aria-hidden="true">${iconSVG}</span>` : "";
+
+          const slug = (typeof slugifyTitle === "function") ? slugifyTitle(titleText || "") : "";
+          const modelHref = slug ? `./model/${slug}` : "";
+          const modelLinkHTML = modelHref
+            ? `<p style="margin:16px 0 0;">
+                <a href="${escapeAttr(modelHref)}"
+                    style="color:inherit; text-decoration:underline; font-weight:650;">
+                View model page →
+                </a>
+            </p>`
+            : "";
+
+          modalBackdrop = document.createElement("div");
+          modalBackdrop.className = "map-modal-backdrop";
+          modalBackdrop.innerHTML = `
+            <div class="map-modal-panel"
+                 role="dialog"
+                 aria-modal="true"
+                 aria-label="${safeTitle}"
+                 style="--overlay-color:${escapeAttr(cssColor)}; --overlay-text:${escapeAttr(cssText)}">
+              <div class="map-modal-header">
+                <div class="map-modal-titleRow">
+                  ${iconHTML}
+                  <h2 class="map-modal-title">${safeTitle}</h2>
+                </div>
+                <button class="map-modal-close" type="button" aria-label="Close">×</button>
+              </div>
+                <div class="map-modal-body">
+                    ${bodyHTML}
+                    ${modelHref ? `
+                    <div class="map-modal-footer">
+                        <a href="${escapeAttr(modelHref)}">
+                        <span>View model page</span>
+                        <svg class="icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                            <path fill="currentColor" d="M7.5 4.5a1 1 0 0 1 1.4 0l5 5a1 1 0 0 1 0 1.4l-5 5a1 1 0 1 1-1.4-1.4L11.8 10 7.5 5.9a1 1 0 0 1 0-1.4z"/>
+                        </svg>
+                        </a>
+                    </div>
+                    ` : ""}
+                </div>
             </div>
+          `;
 
-            <div class="span4">
-                <h2>
-                    The Model
-                </h2>
-                <dl>
-                    <dt>The Sun</dt>
-                    <dd>The scale of the project is determined by the size of the planetarium dome. At 83 feet, it is 55
-                        million times smaller than the sun.</dd>
-                    <dt>The Terrestrial Planets</dt>
-                    <dd>PPlanets orbit the Sun on an elliptical path. The circles represent the aphelion (furthest) and
-                        perihelion (closest) points a planet travels on its way around the Sun. The apparent size of the
-                        planetarium dome will match the apparent size of the sun from any point on the blue circle
-                        (Earth's orbit).</dd>
-                    <dt>The Gas Giants</dt>
-                    <dd>The Sun represents 99% of the mass of the solar system. The Gas Giants have 99% of the remaining
-                        mass consisting mostly of basic elements hydrogen, helium, carbon and oxygen. Their large size
-                        let us explore spherical structures.</dd>
-                    <dt>The Dwarf Planets and Asteroids</dt>
-                    <dd>Thousands of objects orbit the Sun. Many, including Pluto, are resonant with the orbit of
-                        Neptune. The twenty-nine largest can be placed around Southern California. One could be as far
-                        as St. Louis. Proxima Centuri, the nearest star, in the model would be almost halfway to the
-                        moon.</dd>
-                </dl>
-            </div>
+          modalBackdrop.addEventListener("click", () => closeModal());
+          modalBackdrop.querySelector(".map-modal-panel").addEventListener("click", (e) => e.stopPropagation());
+          modalBackdrop.querySelector(".map-modal-close").addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeModal();
+          });
 
-            <div class="span4">
-                <h2>
-                    Get Involved
-                </h2>
-                <p>
-                    The Solar System Project will provide a connection between art and science, a connection between our
-                    city and our sun, a connection between our world and ourselves, and a connection between the
-                    cultural and educational institutions of Los Angeles.
-                </p>
-                <p>
-                    Host locations from Hollywood to Mt. Wilson and from Santa Catalina Island to Pasadena will host a
-                    planet, a dwarf planet or an asteroid.
-                </p>
-                <p>
-                    Visitors to these locations will connect with our city and the region in a new way. A visit to one
-                    location will inspire curiosity about others. Avid astronomy fans will be compelled to visit every
-                    site. School children on a field trip will see their place in the city in a new light and enjoy a
-                    new perspective for their place in the universe. They will connect one with the next and connect
-                    with each other.
-                </p>
+          // Ensure modal positions relative to map canvas
+          const cs = getComputedStyle(mapDiv);
+          if (cs.position === "static") mapDiv.style.position = "relative";
 
-                <h2>
-                    Contact
-                </h2>
-                <p>
-                    Email us for more information about sponsorship or becoming a host location:
-                </p>
-                <p><a class="btn btn-success" href="mailto:info@lassp.org" target="_blank">info@lassp.org</a></p>
-            </div>
-        </div>
+          mapDiv.appendChild(modalBackdrop);
+          document.addEventListener("keydown", onKeyDown, true);
+        }
 
+        // --- Center ANY declarative SVG inside the marker circle ---
+        function parseSvg(iconSVG) {
+          const raw = (iconSVG || "").trim();
+          if (!raw) return null;
 
+          const doc = new DOMParser().parseFromString(raw, "image/svg+xml");
+          const svg = doc.documentElement;
+          if (!svg || svg.nodeName.toLowerCase() !== "svg") return null;
 
-        <script type="text/javascript">
+          let vb = svg.getAttribute("viewBox");
+          let vbX = 0, vbY = 0, vbW = 64, vbH = 64;
 
-            const unitConvertKmToMeters = 1000;
-            const unitConvertKmToMiles = 0.621371;
-            const unitConvertMiToKilometers = 1.609344;
-            const unitConvertKmToFeet = 3280.84;
-            const unitConvertFtToMeters = 0.3048;
-            const unitConvertFtToKilometers = unitConvertFtToMeters / 1000;
-            
-            const sunDiameterKilometers = 1392700;
-            const sunDiameterScaledFeet = 83;
-            const sunDiameterScaledKilometers = sunDiameterScaledFeet * unitConvertFtToKilometers;
-            const scaleFactor = sunDiameterScaledKilometers / sunDiameterKilometers;
+          if (vb) {
+            const parts = vb.trim().split(/[\s,]+/).map(Number);
+            if (parts.length === 4 && parts.every(Number.isFinite)) {
+              [vbX, vbY, vbW, vbH] = parts;
+            }
+          } else {
+            const w = Number(svg.getAttribute("width"));
+            const h = Number(svg.getAttribute("height"));
+            if (Number.isFinite(w) && Number.isFinite(h) && w > 0 && h > 0) {
+              vbW = w; vbH = h;
+            }
+          }
 
-            /**
-            // sanity checks
-            console.log(scaleFactor);                                                 // 1.816500323113377e-8
-            console.log(sunDiameterKilometers * scaleFactor);                         // 0.025298400000000002
-            console.log(sunDiameterKilometers * scaleFactor * unitConvertKmToMeters); // 25.2984
-            console.log(sunDiameterScaledFeet * unitConvertFtToMeters);               // 25.2984
-            console.log(sunDiameterKilometers * scaleFactor * unitConvertKmToFeet);   // 83.000002656
-            **/
-            
-            const bodies = [
-                {
-                    name: "Mercury",
-                    description: "Some details about Mercury.",
-                    perihelionKilometers: 27952469 * unitConvertMiToKilometers,
-                    aphelionKilometers: 42466251 * unitConvertMiToKilometers,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#FF0000",
-                    fillOpacity: 0.5,
-                    markers: [
-                        {
-                            name: "",
-                            description: "",
-                            diameterKilometers: 0,
-                            latitude: 0,
-                            longitude: 0,
-                        }
-                    ]
-                },
-                {
-                    name: "Venus",
-                    description: "Some details about Venus.",
-                    perihelionKilometers: 65043245 * unitConvertMiToKilometers,
-                    aphelionKilometers: 66118340 * unitConvertMiToKilometers,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#00FF00",
-                    fillOpacity: 0.5,
-                    markers: [
-                        {
-                            name: "",
-                            description: "",
-                            diameterKilometers: 0,
-                            latitude: 0,
-                            longitude: 0,
-                        }
-                    ]
-                },
-                {
-                    name: "Earth",
-                    description: "Some details about Earth.",
-                    perihelionKilometers: 89232882 * unitConvertMiToKilometers,
-                    aphelionKilometers: 91920619 * unitConvertMiToKilometers,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#005CFF",
-                    fillOpacity: 0.5,
-                    markers: [
-                        {
-                            name: "Earth",
-                            description: "Stuff about Earth model.",
-                            diameterKilometers: 12756,
-                            latitude: 34.134437,
-                            longitude: -118.320748,
-                        }
-                    ]
-                },
-                {
-                    name: "Mars",
-                    description: "Some details about Mars.",
-                    perihelionKilometers: 125248563 * unitConvertMiToKilometers,
-                    aphelionKilometers: 151050843 * unitConvertMiToKilometers,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#FF0000",
-                    fillOpacity: 0.5,
-                    markers: [
-                        {
-                            name: "",
-                            description: "",
-                            diameterKilometers: 0,
-                            latitude: 0,
-                            longitude: 0,
-                        }
-                    ]
-                },
-                {
-                    name: "Asteroid Belt",
-                    description: "Some details about the Asteroid Belt.",
-                    perihelionKilometers: 160726697 * unitConvertMiToKilometers,
-                    aphelionKilometers: 349943411 * unitConvertMiToKilometers,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#A2A2A3",
-                    fillOpacity: 0.5,
-                    markers: [
-                        {
-                            name: "",
-                            description: "",
-                            diameterKilometers: 0,
-                            latitude: 0,
-                            longitude: 0,
-                        }
-                    ]
-                },
-                {
-                    name: "Jupiter",
-                    description: "Some details about Jupiter.",
-                    perihelionKilometers: 448852148 * unitConvertMiToKilometers,
-                    aphelionKilometers: 494543684 * unitConvertMiToKilometers,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#F96806",
-                    fillOpacity: 0.5,
-                    markers: [
-                        {
-                            name: "",
-                            description: "",
-                            diameterKilometers: 0,
-                            latitude: 0,
-                            longitude: 0,
-                        }
-                    ]
-                },
-                {
-                    name: "Saturn",
-                    description: "Some details about Saturn.",
-                    perihelionKilometers: 817609721 * unitConvertMiToKilometers,
-                    aphelionKilometers: 911142983 * unitConvertMiToKilometers,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#FF00FF",
-                    fillOpacity: 0.5,
-                    markers: [
-                        {
-                            name: "",
-                            description: "",
-                            diameterKilometers: 0,
-                            latitude: 0,
-                            longitude: 0,
-                        }
-                    ]
-                },
-                {
-                    name: "Uranus",
-                    description: "Some details about Uranus.",
-                    perihelionKilometers: 1661021720 * unitConvertMiToKilometers,
-                    aphelionKilometers: 1819598228 * unitConvertMiToKilometers,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#00FF67",
-                    fillOpacity: 0.5,
-                    markers: [
-                        {
-                            name: "",
-                            description: "",
-                            diameterKilometers: 0,
-                            latitude: 0,
-                            longitude: 0,
-                        }
-                    ]
-                },
-                {
-                    name: "Neptune",
-                    description: "Some details about Neptune.",
-                    perihelionKilometers: 2692575339 * unitConvertMiToKilometers,
-                    aphelionKilometers: 2753855752 * unitConvertMiToKilometers,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#0000FF",
-                    fillOpacity: 0.5,
-                    markers: [
-                        {
-                            name: "",
-                            description: "",
-                            diameterKilometers: 0,
-                            latitude: 0,
-                            longitude: 0,
-                        }
-                    ]
-                },
-                {
-                    name: "Kuiper Belt and Pluto",
-                    description: "Some details about the Kuiper Belt and Pluto.",
-                    perihelionKilometers: 4.488e+9,
-                    aphelionKilometers: 8.228e+9,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#00FFF8",
-                    fillOpacity: 0.35,
-                    markers: [
-                        {
-                            name: "",
-                            description: "",
-                            diameterKilometers: 0,
-                            latitude: 0,
-                            longitude: 0,
-                        }
-                    ]
-                },
-                {
-                    name: "Oort Cloud",
-                    description: "Far, Far Away. The Oort Cloud is a spherical layer of icy objects that occupies space at a distance between about 2,000 and 100,000 astronomical units (AU) from the Sun. At the scale of the model, the aphelion meets on the opposite side of the globe at just over 6,000 AU.",
-                    perihelionKilometers: 2.992e+11,
-                    aphelionKilometers: 9.15e+11,
-                    strokeColor: "#0000FF",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 0,
-                    fillColor: "#00FFF8",
-                    fillOpacity: 0.15,
-                    markers: [
-                        {
-                            name: "",
-                            description: "",
-                            diameterKilometers: 0,
-                            latitude: 0,
-                            longitude: 0,
-                        }
-                    ]
-                }
-            ];
+          const inner = raw
+            .replace(/^\s*<svg[^>]*>/i, "")
+            .replace(/<\/svg>\s*$/i, "");
 
-            // define map in global scope
-            let map;
+          return { inner, vbX, vbY, vbW, vbH };
+        }
 
-            function initMap() {
+        function buildCenteredMarkerSvg({ iconSVG, bgColor, iconColor }) {
+          const info = parseSvg(iconSVG);
 
-                const center = new google.maps.LatLng(34.11811, -118.300313);
-                const mapOptions = {
-                    center: center,
-                    mapTypeId: google.maps.MapTypeId.HYBRID,
-                    tilt: 0
-                };
+          const W = 64, H = 64;
+          const cx = 32, cy = 32;
+          const radius = 26;
+          const iconBox = 34;
 
-                map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+          let iconGroup = "";
+          if (info) {
+            const scale = Math.min(iconBox / info.vbW, iconBox / info.vbH);
+            const tx = -(info.vbX + info.vbW / 2);
+            const ty = -(info.vbY + info.vbH / 2);
 
-                for (let i = 0; i < bodies.length; i++) {
-                    let body = bodies[i];
+            iconGroup = `
+              <g transform="translate(${cx} ${cy}) scale(${scale}) translate(${tx} ${ty})" style="color:${escapeAttr(iconColor)}">
+                ${info.inner}
+              </g>
+            `;
+          }
 
-                    body.paths = [
-                        drawCircle(center, body.aphelionKilometers * scaleFactor, -1),
-                        drawCircle(center, body.perihelionKilometers * scaleFactor, 1)
-                    ]
-                    body.apsidesWidthKilometers = Math.round(body.aphelionKilometers - body.perihelionKilometers);
+          return `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}">
+  <circle cx="${cx}" cy="${cy}" r="${radius}" fill="${escapeAttr(bgColor)}"/>
+  ${iconGroup}
+</svg>`.trim();
+        }
 
-                    let bodyApsides = new google.maps.Polygon(body);
+        function svgToDataUrl(svgString) {
+          let svg = (svgString || "").trim();
+          if (!svg) return null;
+          if (!/xmlns=/.test(svg)) {
+            svg = svg.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+          }
+          return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+        }
 
-                    bodyApsides.setMap(map);
-                    bodyApsides.set("name", body.name);
+        templateEls.forEach((el) => {
+          const lat = parseFloat(el.dataset.lat);
+          const lng = parseFloat(el.dataset.lng);
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
-                    bodyApsides.addListener("click", function (event) {
-                        clearInterval(intervalId);
-                        infoWindow.setContent(`
-                        <div class="infoWindow">
-                            <strong>Apsides of ${this.name}</strong><br>
-                            <hr>
-                            <table>
-                                <tr>
-                                    <td>Click location:</td><td>${event.latLng.lat().toFixed(6)} lat</td><td>${event.latLng.lng().toFixed(6)} lon</td>
-                                </tr><tr>
-                                    <td>Apsides width actual:</td><td>${Math.round(this.apsidesWidthKilometers * unitConvertKmToMiles).toLocaleString()} mi</td><td>${(this.apsidesWidthKilometers).toLocaleString()} km</td>
-                                </tr><tr>
-                                    <td>Apsides width scaled:</td><td>${Math.round(this.apsidesWidthKilometers * scaleFactor * unitConvertKmToFeet).toLocaleString()} ft</td><td>${Math.round(this.apsidesWidthKilometers * scaleFactor * unitConvertKmToMeters).toLocaleString()} m</td>
-                                </tr><tr>
-                                    <td>Perihelion:</td><td>${Math.round(this.perihelionKilometers * unitConvertKmToMiles).toLocaleString()} mi</td><td>${Math.round(this.perihelionKilometers).toLocaleString()} km</td>
-                                </tr><tr>
-                                    <td>Aphelion:</td><td>${Math.round(this.aphelionKilometers * unitConvertKmToMiles).toLocaleString()} mi</td><td>${Math.round(this.aphelionKilometers).toLocaleString()} km</td>
-                                </tr>
-                            </table>
-                            <hr>
-                            ${this.description}
-                        </div>
-                        `);
-                        infoWindow.setPosition(event.latLng);
-                        infoWindow.open(map);
-                    });
+          const titleText = (el.querySelector("[data-overlay-title]")?.textContent || "").trim();
+          const bodyHTML = el.querySelector("[data-overlay-body]")?.innerHTML || "";
 
-                    for (let i = 0; i < body.markers.length; i++) {
-                        if (body.markers[i].diameterKilometers === 0) { break; }
-                        const markerData = body.markers[i];
-                        const objectPosition = new google.maps.LatLng(markerData.latitude, markerData.longitude);
-                        const marker = new google.maps.Marker({
-                            position: objectPosition,
-                            map: map,
-                            data: markerData
-                        });
-                        marker.addListener("click", function (event) {
-                            clearInterval(intervalId);
-                            infoWindow.setContent(`
-                                <div class="infoWindow">
-                                    <strong>${this.data.name} Model</strong><br>
-                                    <hr>
-                                    <table>
-                                        <tr>
-                                            <td>Model location:</td><td>${objectPosition.lat().toFixed(6)} lat</td><td>${objectPosition.lng().toFixed(6)} lon</td>
-                                        </tr><tr>
-                                            <td>Diameter actual:</td><td>${Math.round(this.data.diameterKilometers * unitConvertKmToMiles).toLocaleString()} mi</td><td>${Math.round(this.data.diameterKilometers).toLocaleString()} km</td>
-                                        </tr><tr>
-                                            <td>Diameter scaled:</td><td>${(this.data.diameterKilometers * scaleFactor * unitConvertKmToFeet).toFixed(1).toLocaleString()} ft</td><td>${(this.data.diameterKilometers * scaleFactor * unitConvertKmToMeters).toFixed(1).toLocaleString()} m</td>
-                                        </tr>
-                                    </table>
-                                    <hr>
-                                    Stuff about Earth model from the loop.
-                                </div>
-                            `);
-                            infoWindow.setPosition(event.latLng);
-                            infoWindow.open(map);
-                        });
-                    }
+          const color = (el.dataset.color || "").trim() || "#0087CD";
+          const textColor = (el.dataset.textColor || "").trim() || "#ffffff";
+          const iconSVG = (el.dataset.icon || "").trim();
 
-                }
+          const markerSvg = buildCenteredMarkerSvg({
+            iconSVG,
+            bgColor: color,
+            iconColor: textColor
+          });
+          const markerUrl = svgToDataUrl(markerSvg);
 
-                const infoWindow = new google.maps.InfoWindow();
-                infoWindow.addListener("closeclick", function () {
-                    intervalId = window.setInterval(zoomOut, 2000);
-                });
+          const position = { lat, lng };
 
-                const sunImageBounds = new google.maps.LatLngBounds(
-                    new google.maps.LatLng(34.118005, -118.300538), // lower left
-                    new google.maps.LatLng(34.118265, -118.300209)  // upper right
-                );
-                const sunIcon = new google.maps.GroundOverlay(
-                    "./img/sun-icon.png",
-                    sunImageBounds);
-                sunIcon.setMap(map);
+        // Advanced marker content (44x44)
+        const markerImg = document.createElement("img");
+        markerImg.src = markerUrl;
+        markerImg.alt = "";
+        markerImg.width = 44;
+        markerImg.height = 44;
+        markerImg.style.display = "block";
+        markerImg.style.userSelect = "none";
+        markerImg.draggable = false;
 
-                sunIcon.addListener("click", function (event) {
-                    clearInterval(intervalId);
-                    infoWindow.setContent(`
-                        <div class="infoWindow">
-                            <strong>The Sun</strong><br>
-                            <hr>
-                            <table>
-                                <tr>
-                                    <td>Click location:</td><td>${event.latLng.lat().toFixed(6)} lat</td><td>${event.latLng.lng().toFixed(6)} lon</td>
-                                </tr><tr>
-                                    <td>Diameter actual:</td><td>${Math.round(sunDiameterKilometers * unitConvertKmToMiles).toLocaleString()} mi</td><td>${Math.round(sunDiameterKilometers).toLocaleString()} km</td>
-                                </tr><tr>
-                                    <td>Diameter scaled:</td><td>${Math.round(sunDiameterScaledKilometers * unitConvertKmToFeet).toLocaleString()} ft</td><td>${Math.round((sunDiameterScaledKilometers * unitConvertKmToMeters)).toLocaleString()} m</td>
-                                </tr>
-                            </table>
-                            <hr>
-                            Stuff about The Sun and/or The Sphere.
-                        </div>
-                        `);
-                    infoWindow.setPosition(event.latLng);
-                    infoWindow.open(map);
-                });
+        // Center the marker visual on the coordinate (robust)
+        const markerWrap = document.createElement("div");
+        markerWrap.style.transform = "translate(0, 50%)";
+        markerWrap.style.willChange = "transform";
+        markerWrap.appendChild(markerImg);
 
-                map.setZoom(zoomLevels[0])
+        const marker = new google.maps.marker.AdvancedMarkerElement({
+            position,
+            map,
+            title: titleText || "",
+            content: markerWrap,
+            gmpClickable: true
+        });
 
-                intervalId = window.setInterval(zoomOut, 2000);
+          marker.addListener("gmp-click", () => {
+            openModal({
+              titleText: titleText || "Details",
+              bodyHTML,
+              iconSVG,
+              color,
+              textColor
+            });
+          });
+        });
+
+        map.addListener("click", () => closeModal());
+
+        function escapeHTML(s) {
+          return String(s).replace(/[&<>"']/g, (c) => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+          }[c]));
+        }
+
+        function escapeAttr(s) {
+          return String(s).replace(/["'<>]/g, "");
+        }
+      };
+    }
+
+    function installExpandMapControl() {
+        const mapCanvas = document.getElementById("map-canvas");
+        const btn = document.getElementById("map-toggle");
+        if (!mapCanvas || !btn) return;
+
+        function updateLabel() {
+            const expanded = mapCanvas.classList.contains("is-expanded");
+            btn.textContent = expanded ? "Shrink Map" : "Expand Map";
+            btn.setAttribute("aria-pressed", expanded ? "true" : "false");
+        }
+
+        function resizeMap() {
+            if (!window.google || !map) return;
+            const center = map.getCenter();
+            requestAnimationFrame(() => {
+            google.maps.event.trigger(map, "resize");
+            if (center) map.setCenter(center);
+            });
+        }
+
+        // Measure the "default/collapsed" height, even if we're currently expanded.
+        function getCollapsedHeightPx() {
+            const wasExpanded = mapCanvas.classList.contains("is-expanded");
+            if (wasExpanded) mapCanvas.classList.remove("is-expanded");
+            const h = mapCanvas.getBoundingClientRect().height;
+            if (wasExpanded) mapCanvas.classList.add("is-expanded");
+            return h;
+        }
+
+        function updateVisibility() {
+            const collapsedHeightPx = getCollapsedHeightPx();
+            const expandedHeightPx = window.innerHeight - 120; // matches CSS: calc(100vh - 120px)
+
+            const shouldHide = expandedHeightPx <= collapsedHeightPx + 1;
+
+            // If expanding is pointless, force collapsed + hide button.
+            if (shouldHide) {
+            if (mapCanvas.classList.contains("is-expanded")) {
+                mapCanvas.classList.remove("is-expanded");
+                updateLabel();
+                resizeMap();
+            }
+            btn.classList.add("is-hidden");
+            return;
             }
 
-            const zoomLevels = [21, 19, 17, 14, 11, 8];
-            let i = 1;
-            let intervalId;
+            // Otherwise, button should be available in both states.
+            btn.classList.remove("is-hidden");
+        }
 
-            function zoomOut() {
-                if (i < zoomLevels.length) {
-                    map.setZoom(zoomLevels[i]);
-                    i++;
-                } else {
-                    clearInterval(intervalId);
-                }
-            }
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
 
-            const d2r = Math.PI / 180;   // degrees to radians
-            const r2d = 180 / Math.PI;   // radians to degrees
-            const earthsradius = 6378;   // 6378 is the radius of the earth in kilometers
+            mapCanvas.classList.toggle("is-expanded");
+            updateLabel();
+            resizeMap();
 
-            function drawCircle(point, radius, dir) {
-                const rlat = (radius / earthsradius) * r2d;
-                const rlng = rlat / Math.cos(point.lat() * d2r);
+            // Re-check visibility AFTER toggle (but using collapsed height baseline)
+            updateVisibility();
+        });
 
-                const extp = [];
-                let i = dir === 1 ? 0 : 32;
-                while (dir === 1 ? i < 33 : i > 0) {
-                    const theta = Math.PI * (i / 16);
-                    const ey = point.lng() + (rlng * Math.cos(theta));
-                    const ex = point.lat() + (rlat * Math.sin(theta));
-                    extp.push(new google.maps.LatLng(ex, ey));
-                    i = i + dir;
-                }
-                return extp;
-            }
+        window.addEventListener("resize", () => {
+            updateVisibility();
+            // If user is expanded and viewport changes, keep map rendering correct.
+            if (mapCanvas.classList.contains("is-expanded")) resizeMap();
+        }, { passive: true });
 
-        </script>
+        updateLabel();
+        updateVisibility();
+    }
 
-        <script type="text/javascript"
-            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFJ8V1qydk_HtNbvdlkK2yAkYf5GXNhTI&callback=initMap"
-            async defer>
-            </script>
-        <hr>
-        <footer>
-            <p>&copy; 2005 -
-                <script>document.write(new Date().getFullYear())</script> by Jack Anderson, all rights reserved.
-            </p>
-            <!-- Sun icon courtesy Dan Wiersema http://www.iconarchive.com/show/solar-system-icons-by-dan-wiersma/Sun-icon.html -->
-        </footer>
-    </div> <!-- /container -->
+    async function initMap() {
+      const center = new google.maps.LatLng(34.118132, -118.300373);
+
+      map = new google.maps.Map(document.getElementById("map-canvas"), {
+        center,
+        mapTypeId: google.maps.MapTypeId.HYBRID,
+        tilt: 0,
+
+        // @todo
+        // Replace with a REAL Map ID from Google Cloud Console (Maps Platform → Map Management → Map IDs)
+        mapId: "lassp_map_id"
+      });
+
+      // Advanced markers
+      await google.maps.importLibrary("marker");
+
+      // InfoWindow (classic)
+      const infoWindow = new google.maps.InfoWindow();
+      infoWindow.addListener("closeclick", function () {
+        intervalId = window.setInterval(zoomOut, 2000);
+      });
+
+      // Draw apsides for each body
+      for (let i = 0; i < bodies.length; i++) {
+        const body = bodies[i];
+
+        body.paths = [
+          drawCircle(center, body.aphelionKilometers * scaleFactor, -1),
+          drawCircle(center, body.perihelionKilometers * scaleFactor, 1)
+        ];
+        body.apsidesWidthKilometers = Math.round(body.aphelionKilometers - body.perihelionKilometers);
+
+        const bodyApsides = new google.maps.Polygon(body);
+        bodyApsides.setMap(map);
+        bodyApsides.set("name", body.name);
+
+        bodyApsides.addListener("click", function (event) {
+          clearInterval(intervalId);
+
+          infoWindow.setContent(`
+            <div class="infoWindow">
+              <strong>Apsides of ${this.name}</strong><br>
+              <hr>
+              <table>
+                <tr>
+                  <td>Click location:</td>
+                  <td>${event.latLng.lat().toFixed(6)} lat</td>
+                  <td>${event.latLng.lng().toFixed(6)} lon</td>
+                </tr>
+                <tr>
+                  <td>Apsides width actual:</td>
+                  <td>${Math.round(this.apsidesWidthKilometers * unitConvertKmToMiles).toLocaleString()} mi</td>
+                  <td>${(this.apsidesWidthKilometers).toLocaleString()} km</td>
+                </tr>
+                <tr>
+                  <td>Apsides width scaled:</td>
+                  <td>${Math.round(this.apsidesWidthKilometers * scaleFactor * unitConvertKmToFeet).toLocaleString()} ft</td>
+                  <td>${Math.round(this.apsidesWidthKilometers * scaleFactor * unitConvertKmToMeters).toLocaleString()} m</td>
+                </tr>
+                <tr>
+                  <td>Perihelion:</td>
+                  <td>${Math.round(this.perihelionKilometers * unitConvertKmToMiles).toLocaleString()} mi</td>
+                  <td>${Math.round(this.perihelionKilometers).toLocaleString()} km</td>
+                </tr>
+                <tr>
+                  <td>Aphelion:</td>
+                  <td>${Math.round(this.aphelionKilometers * unitConvertKmToMiles).toLocaleString()} mi</td>
+                  <td>${Math.round(this.aphelionKilometers).toLocaleString()} km</td>
+                </tr>
+              </table>
+              <hr>
+              ${this.description}
+            </div>
+          `);
+
+          infoWindow.setPosition(event.latLng);
+          infoWindow.open(map);
+        });
+      }
+
+      // Ground overlay for sun icon
+      const sunImageBounds = new google.maps.LatLngBounds(
+        new google.maps.LatLng(34.118005, -118.300538), // lower left
+        new google.maps.LatLng(34.118265, -118.300209)  // upper right
+      );
+
+      const sunIcon = new google.maps.GroundOverlay("./img/sun-icon.png", sunImageBounds);
+      sunIcon.setMap(map);
+
+      sunIcon.addListener("click", function (event) {
+        clearInterval(intervalId);
+
+        infoWindow.setContent(`
+          <div class="infoWindow">
+            <strong>The Sun</strong><br>
+            <hr>
+            <table>
+              <tr>
+                <td>Click location:</td>
+                <td>${event.latLng.lat().toFixed(6)} lat</td>
+                <td>${event.latLng.lng().toFixed(6)} lon</td>
+              </tr>
+              <tr>
+                <td>Diameter actual:</td>
+                <td>${Math.round(sunDiameterKilometers * unitConvertKmToMiles).toLocaleString()} mi</td>
+                <td>${Math.round(sunDiameterKilometers).toLocaleString()} km</td>
+              </tr>
+              <tr>
+                <td>Diameter scaled:</td>
+                <td>${Math.round(sunDiameterScaledKilometers * unitConvertKmToFeet).toLocaleString()} ft</td>
+                <td>${Math.round((sunDiameterScaledKilometers * unitConvertKmToMeters)).toLocaleString()} m</td>
+              </tr>
+            </table>
+            <hr>
+            Stuff about The Sun and/or The Sphere.
+          </div>
+        `);
+
+        infoWindow.setPosition(event.latLng);
+        infoWindow.open(map);
+      });
+
+      // Zoom-out animation
+      map.setZoom(zoomLevels[0]);
+      intervalId = window.setInterval(zoomOut, 2000);
+
+      // Bind custom modal markers declared in HTML
+      createMapModalBinder(".map-overlay")(map);
+
+      // Install the expand/shrink control
+      installExpandMapControl();
+    }
+  </script>
+
+  <script type="text/javascript"
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFJ8V1qydk_HtNbvdlkK2yAkYf5GXNhTI&callback=initMap&v=weekly&libraries=marker" async defer>
+  </script>
+
 </body>
 
 </html>
