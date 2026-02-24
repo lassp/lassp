@@ -1,0 +1,140 @@
+/* css/nav-layout.css */
+
+/* ==============
+   Layout + Nav
+   ============== */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 3000;
+
+  background-color: var(--nav-bg);
+  background-image: linear-gradient(rgba(15, 23, 42, 0), rgba(15, 23, 42, 0.48)),
+    var(--nav-bg-image);
+  background-size: auto, auto;
+  background-position: 0 0, left top;
+  background-repeat: repeat, no-repeat;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 16px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: var(--nav-text);
+  white-space: nowrap;
+}
+
+.lassp-yellow {
+  color: var(--nav-accent);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nav-links a {
+  color: var(--nav-text);
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.nav-links a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+}
+
+/* ===== Nav dropdown (Model) ===== */
+.nav-links details {
+  position: relative;
+}
+
+.nav-links summary {
+  list-style: none;
+  cursor: pointer;
+  color: var(--nav-text);
+  padding: 8px 10px;
+  border-radius: 10px;
+  user-select: none;
+}
+.nav-links summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-links details[open] summary,
+.nav-links summary:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-links .submenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 240px;
+  max-width: 320px;
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+  z-index: 4000;
+  max-width: calc(100vw - 24px);
+  width: max-content;
+  max-height: min(60vh, 420px);
+  overflow: auto;
+}
+
+.nav-links .submenu a {
+  display: block;
+  padding: 10px 10px;
+  border-radius: 10px;
+  color: var(--nav-text);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-links .submenu a:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 520px) {
+  .nav-inner {
+    flex-wrap: wrap;
+  }
+
+  .brand {
+    white-space: normal;
+  }
+
+  .nav-links details {
+    width: 100%;
+  }
+
+  .nav-links .submenu {
+    left: 0;
+    right: 0;
+    width: auto;
+    max-width: none;
+  }
+
+  .nav-links .submenu a {
+    white-space: normal;
+  }
+}

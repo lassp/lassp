@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 48.5 48.5"
+   aria-hidden="true"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="ceres.svg"
+   inkscape:version="1.4.3 (0d15f750, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="18.14433"
+     inkscape:cx="24.222443"
+     inkscape:cy="25.324716"
+     inkscape:window-width="1874"
+     inkscape:window-height="1158"
+     inkscape:window-x="2240"
+     inkscape:window-y="25"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg1" />
+  <defs
+     id="defs1" />
+  <path
+     fill="#ffffff"
+     d="M 27.251167,35.338417 C 36.241643,31.090035 40.086226,20.356683 35.837036,11.364594 31.587849,2.3724985 20.854502,-1.47208 11.863215,2.7779084 11.634419,2.8854832 11.409645,2.99948 11.188068,3.1158858 c 7.652225,-2.0744193 15.978002,1.6609799 19.54321,9.2064392 3.996309,8.452607 0.502543,18.487537 -7.802355,22.412389 -0.706459,0.333165 -1.424156,0.612537 -2.149873,0.83731 v 1.45547 c 0.698425,-0.04822 1.396857,-0.136484 2.093668,-0.26734 v 1.841616 h -2.392321 v 2.39232 h 2.392321 v 6.461699 h 2.631569 V 40.99409 h 2.393119 v -2.39232 h -2.393119 v -2.547262 c 0.587646,-0.206321 1.171275,-0.443951 1.74688,-0.716091 z"
+     id="path1"
+     style="stroke-width:0.802794" />
+</svg>

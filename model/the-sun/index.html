@@ -1,32 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <title>Placeholder</title>
-  <style>
-    :root {color-scheme: light dark;}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <title>LASSP — Subpage Title</title>
 
-    body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: Arial, sans-serif;
-    font-size: 2rem;
-    background-color: #ffffff;
-    color: #000000;
-    }
+  <link rel="icon" type="image/x-icon" href="../../img/favicon.ico" />
 
-    @media (prefers-color-scheme: dark) {
-    body {
-        background-color: #111;
-        color: #f5f5f5;
-    }
-    }
-  </style>
+  <!-- Common site styles -->
+  <link rel="stylesheet" href="../../css/site.css">
+  <link rel="stylesheet" href="../../css/map.css">
+  <link rel="stylesheet" href="../../css/nav-layout.css">
 </head>
+
 <body>
-  placeholder
+  <!-- Header / Nav (same structure as root, corrected paths for 2 levels deep) -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="../../">
+        <span class="lassp-yellow">Los Angeles Solar System Project</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="../../">Home</a>
+
+        <details class="nav-model">
+          <summary>Model</summary>
+          <div class="submenu" id="model-submenu"><!-- populated by JS --></div>
+        </details>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <header class="page-header">
+      <h1 data-bind="modelSubpageTitle"></h1>
+      <div class="marker-body" data-bind="bodyParagraphs"></div>
+    </header>
+
+    <!-- Begin editable sections -->
+
+    <section class="illustration-panel">
+      <article class="card">
+        <img src="/img/illustrations/sun.jpg" alt="Illustration of The Sun" loading="lazy" />
+      </article>
+    </section>
+
+    <section class="marker-map content">
+      <article class="card">
+        <div id="marker-map" class="marker-map-canvas" aria-label="Marker location map"></div>
+      </article>
+    </section>
+
+    <!-- End editable sections -->
+
+    <footer>
+      <p>
+        &copy; 2005 - <span id="year"></span> by Jack Anderson, all rights reserved.
+      </p>
+    </footer>
+  </main>
+
+  <!-- Common site behavior (nav menu, year, etc.) -->
+  <script src="../../js/site.js" defer></script>
+  <script src="../../js/map.js" defer></script>
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFJ8V1qydk_HtNbvdlkK2yAkYf5GXNhTI&v=weekly&libraries=marker"
+    defer></script>
+
+  <!-- Optional fallback year; runs after parsing -->
+  <script defer>
+    const y = document.getElementById("year");
+    if (y) y.textContent = new Date().getFullYear();
+  </script>
 </body>
+
 </html>

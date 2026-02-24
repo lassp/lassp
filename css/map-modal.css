@@ -1,0 +1,171 @@
+/* css/map-modal.css */
+
+/* Hide declarative templates */
+.map-overlay {
+  display: none;
+}
+
+.map-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 2500;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.map-modal-panel {
+  width: min(900px, calc(100% - 32px));
+  height: min(700px, calc(100% - 32px));
+  background: var(--overlay-color, #0087cd);
+  color: var(--overlay-text, #ffffff);
+  border-radius: 14px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+
+  /* Fade-in on open */
+  animation: modalFadeIn 180ms ease-out both;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.map-modal-header {
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.map-modal-titleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.map-modal-titleIcon {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.map-modal-titleIcon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.map-modal-title {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: inherit;
+}
+
+.map-modal-close {
+  appearance: none;
+  border: 0;
+  background: rgba(255, 255, 255, 0.18);
+  color: inherit;
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 36px;
+  text-align: center;
+  flex: 0 0 auto;
+}
+.map-modal-close:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.map-modal-body {
+  padding: 16px 18px 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: auto;
+  flex: 1 1 auto;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-modal-body p {
+  margin: 0 0 12px 0;
+}
+
+/* footer container */
+.map-modal-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* pill link */
+.map-modal-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+  text-decoration: none;
+  font-weight: 650;
+  font-size: 13px;
+
+  opacity: 0.45; /* reduced opacity until hover */
+  transform: translateY(6px);
+  transition: opacity 180ms ease, background 180ms ease, transform 220ms ease,
+    border-color 180ms ease;
+}
+
+/* "fade it in on modal open" — we apply .is-visible in JS */
+.map-modal-footer a.is-visible {
+  opacity: 0.72;
+  transform: translateY(0);
+}
+
+.map-modal-footer a:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Small arrow icon */
+.map-modal-footer a .icon {
+  width: 14px;
+  height: 14px;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .map-modal-backdrop {
+    background: rgba(0, 0, 0, 0.7);
+  }
+}

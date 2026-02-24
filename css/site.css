@@ -1,0 +1,288 @@
+/* css/site.css */
+
+/* =========================
+   Design tokens + base
+   ========================= */
+:root {
+  --page-bg: #ffffff;
+  --page-text: #111827;
+  --muted-text: #4b5563;
+
+  --link: #0b5bd3;
+  --link-hover: #0848a8;
+
+  --nav-bg: #0f172a;
+  --nav-bg-image: url("../img/sun-icon-256.png");
+  --nav-text: #e5e7eb;
+  --nav-accent: #fff200;
+
+  --surface: #ffffff;
+  --surface-border: rgba(0, 0, 0, 0.1);
+
+  --max-width: 1100px;
+
+  /* Map heights */
+  --map-h: 420px;
+  --mini-map-h: 420px;
+
+  /* Header height */
+  --nav-h: 56px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--page-bg);
+  color: var(--page-text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+    sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+/* Dark mode variables */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --page-bg: #212328;
+    --page-text: #e8eaf0;
+    --muted-text: rgba(243, 244, 248, 0.851);
+
+    --link: #9ecbff;
+    --link-hover: #c7e0ff;
+
+    --surface: #1c202a;
+    --surface-border: rgba(255, 255, 255, 0.1);
+
+    --nav-bg: #0b1220;
+    --nav-text: #e8eaf0;
+  }
+}
+
+/* Responsive token tweaks */
+@media (max-width: 980px) {
+  :root {
+    --map-h: 520px;
+    --mini-map-h: 280px;
+  }
+}
+
+@media (max-width: 520px) {
+  :root {
+    --map-h: 560px;
+  }
+}
+
+/* =========================
+     Page layout + rhythm
+     ========================= */
+.page {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* consistent vertical rhythm inside .page */
+.page > * + * {
+  margin-top: 1.5rem;
+}
+@media (min-width: 768px) {
+  .page > * + * {
+    margin-top: 2.5rem;
+  }
+}
+
+/* =========================
+     Components
+     ========================= */
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 14px;
+  padding: 16px 16px 14px;
+}
+
+.card h2 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.card p,
+.card dd {
+  margin: 0 0 12px 0;
+  color: var(--page-text);
+}
+
+.card dl {
+  margin: 0;
+}
+.card dt {
+  font-weight: 700;
+  margin-top: 10px;
+}
+.card dd {
+  margin-left: 0;
+  color: var(--muted-text);
+}
+
+blockquote {
+  margin: 14px 0 0;
+  padding-left: 12px;
+  border-left: 4px solid rgba(0, 0, 0, 0.12);
+  color: var(--muted-text);
+}
+@media (prefers-color-scheme: dark) {
+  blockquote {
+    border-left-color: rgba(255, 255, 255, 0.15);
+  }
+}
+
+/* Content grid (Flexbox) */
+.content-grid {
+  margin-top: 18px;
+  display: flex;
+  gap: 18px;
+  align-items: stretch;
+}
+
+@media (max-width: 980px) {
+  .content-grid {
+    flex-direction: column;
+  }
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #f3f4f6;
+  color: #111827;
+  font-weight: 650;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+}
+.btn:hover {
+  background: #e5e7eb;
+  text-decoration: none;
+}
+
+.btn-success {
+  background: #16a34a;
+  border-color: rgba(0, 0, 0, 0.08);
+  color: white;
+}
+.btn-success:hover {
+  background: #12843d;
+}
+
+/* Footer */
+footer {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(17, 24, 39, 0.7);
+  font-size: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  footer {
+    border-top-color: rgba(255, 255, 255, 0.1);
+    color: rgba(232, 234, 240, 0.65);
+  }
+}
+
+/* =========================
+     Map canvas shared styling
+     ========================= */
+
+/* Apply consistent "panel" styling to any map canvas */
+#map-canvas,
+.marker-map-canvas {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+}
+
+/* Subpage mini map */
+.marker-map-canvas {
+  width: 100%;
+  height: var(--mini-map-h);
+}
+
+/* =========================
+     Google Maps InfoWindow fix
+     Applies to main map + mini map
+     ========================= */
+
+/* Base InfoWindow spacing (both themes) */
+.infoWindow td {
+  padding-right: 10px;
+  text-align: right;
+}
+.infoWindow hr {
+  margin: 10px;
+}
+
+/* Dark mode: force InfoWindow content readable */
+@media (prefers-color-scheme: dark) {
+  .gm-style .gm-style-iw,
+  .gm-style .gm-style-iw *,
+  .gm-style .gm-style-iw-d,
+  .gm-style .gm-style-iw-d * {
+    color: #111 !important;
+  }
+
+  .gm-style button.gm-ui-hover-effect {
+    filter: invert(1) !important;
+  }
+}
+
+/* Illustration panel */
+.illustration-panel {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--surface-border);
+  background: var(--surface);
+  margin: 18px 0 8px 0;
+}
+
+.illustration-panel .card {
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 0; /* important */
+}
+
+/* Image fills container */
+.illustration-panel img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
