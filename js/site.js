@@ -27,7 +27,7 @@ LASSP.getSiteBasePath =
     const siteScript =
       scripts.find((s) => /\/js\/site\.js(\?|#|$)/.test(s.src)) ||
       scripts.find((s) =>
-        /(^|\/)js\/site\.js(\?|#|$)/.test(s.getAttribute("src") || "")
+        /(^|\/)js\/site\.js(\?|#|$)/.test(s.getAttribute("src") || ""),
       );
 
     if (siteScript) {
@@ -128,14 +128,14 @@ LASSP.buildModelMenuFromJson = async function buildModelMenuFromJson() {
       (e) => {
         if (!details.contains(e.target)) details.removeAttribute("open");
       },
-      { capture: true }
+      { capture: true },
     );
   }
 };
 
 // ---- Subpage helper: infer the marker slug from URL ----
 LASSP.getMarkerSlugFromLocation = function getMarkerSlugFromLocation(
-  pathname = window.location.pathname
+  pathname = window.location.pathname,
 ) {
   // Works for:
   //  /model/neptune
@@ -156,6 +156,18 @@ LASSP.getMarkerSlugFromLocation = function getMarkerSlugFromLocation(
   const prev = parts[parts.length - 2];
   return prev || "";
 };
+
+LASSP.getPrevNextMarkers =
+  LASSP.getPrevNextMarkers ||
+  function getPrevNextMarkers(markers, currentSlug) {
+    const slugOf = (m) => LASSP.slugifyTitle(m?.title || "");
+    const idx = markers.findIndex((m) => slugOf(m) === currentSlug);
+    if (idx < 0) return { prev: null, next: null };
+
+    const prev = idx > 0 ? markers[idx - 1] : null;
+    const next = idx < markers.length - 1 ? markers[idx + 1] : null;
+    return { prev, next };
+  };
 
 // ---- Subpage binder: binds marker -> DOM and builds nav ----
 // No opts required. Uses detected base paths and inferred slug.
@@ -181,6 +193,59 @@ LASSP.initSubpage = async function initSubpage() {
     console.warn(`No marker found for slug "${markerSlug}" in ${jsonUrl}`);
     return;
   }
+
+// ---- Prev / Next pager (subpages) ----
+const navHost = document.querySelector('[data-bind="prevNextNav"]');
+const prevEl = document.querySelector('[data-bind="prevMarker"]');
+const nextEl = document.querySelector('[data-bind="nextMarker"]');
+
+if (navHost && (prevEl || nextEl)) {
+  const slugOf = (m) => LASSP.slugifyTitle(m?.title || "");
+  const idx = markers.findIndex((m) => slugOf(m) === markerSlug);
+
+  const prev = idx > 0 ? markers[idx - 1] : null;
+  const next = idx >= 0 && idx < markers.length - 1 ? markers[idx + 1] : null;
+
+  const modelBase = LASSP.sitePath("model/");
+
+  function bind(el, m, label) {
+    if (!el || !m) return false;
+    const title = (m.title || "").trim();
+    const slug = slugOf(m);
+    if (!title || !slug) return false;
+
+    el.hidden = false;
+    el.textContent = `${label}: ${title}`;
+    el.href = modelBase + slug;
+    el.title = title; // hover reveals which object
+    el.setAttribute("aria-label", `${label}: ${title}`);
+    return true;
+  }
+
+  const hasPrev = bind(prevEl, prev, "In To");
+  const hasNext = bind(nextEl, next, "Out To");
+
+  // Show container only if at least one exists
+  navHost.hidden = !(hasPrev || hasNext);
+
+  // Optional: keep corners even if only one button exists (no :has needed)
+  if (hasPrev && !hasNext) {
+    // ensure prev stays left; add spacer to push it
+    navHost.querySelector(".pager-spacer")?.remove();
+    const spacer = document.createElement("div");
+    spacer.className = "pager-spacer";
+    spacer.style.flex = "1 1 auto";
+    navHost.appendChild(spacer);
+  } else if (!hasPrev && hasNext) {
+    navHost.querySelector(".pager-spacer")?.remove();
+    const spacer = document.createElement("div");
+    spacer.className = "pager-spacer";
+    spacer.style.flex = "1 1 auto";
+    navHost.insertBefore(spacer, nextEl);
+  } else {
+    navHost.querySelector(".pager-spacer")?.remove();
+  }
+}
 
   // Render subpage mini-map (satellite, max zoom, static)
   try {

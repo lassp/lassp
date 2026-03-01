@@ -203,6 +203,40 @@ blockquote {
   background: #12843d;
 }
 
+/* Subpage prev/next pager */
+.pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 22px;
+  font-size: 0.95rem;
+}
+
+/* neutral text navigation */
+.pager-link {
+  color: var(--link);
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: opacity 120ms ease, color 120ms ease;
+}
+
+/* hover underline = primary affordance */
+.pager-link:hover {
+  text-decoration: underline;
+  color: var(--link-hover);
+}
+
+/* subtle inactive feel on touch devices */
+.pager-link:active {
+  opacity: 0.7;
+}
+
+/* hide cleanly */
+.pager-link[hidden] {
+  display: none !important;
+}
+
 /* Footer */
 footer {
   margin-top: 18px;

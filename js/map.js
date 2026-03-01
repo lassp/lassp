@@ -17,11 +17,12 @@ const unitConvertFtToKilometers = UNITS.ftToMeters / 1000;
 // =======================
 const SUN = Object.freeze({
   title: "The Sun",
-  description: `The sun is a mass of incandescent gas; 
-A gigantic nuclear furnace; 
-Where hydrogen is built into helium; 
-At a temperature of millions of degrees.
-`,
+  bodyParagraphs: [
+    "The sun is a mass of incandescent gas",
+    "A gigantic nuclear furnace",
+    "Where hydrogen is built into helium",
+    "At a temperature of millions of degrees.",
+  ],
 
   // Center of the whole installation (also used as default map center)
   lat: 34.118132,
@@ -110,7 +111,9 @@ async function loadBodiesFromJson(jsonUrl) {
     .filter((b) => b && typeof b === "object" && typeof b.name === "string")
     .map((b) => ({
       name: String(b.name),
-      description: String(b.description || ""),
+      bodyParagraphs: Array.isArray(b.bodyParagraphs)
+        ? b.bodyParagraphs.map((p) => String(p || "")).filter(Boolean)
+        : [],
       perihelionKilometers: Number(b.perihelionKilometers),
       aphelionKilometers: Number(b.aphelionKilometers),
       strokeColor: String(b.strokeColor || "#0000FF"),
@@ -212,11 +215,6 @@ async function loadMapOverlaysFromJson(jsonUrl, opts = {}) {
     return txt;
   }
 
-  function paragraphsToHtml(paragraphs) {
-    if (!Array.isArray(paragraphs)) return "";
-    return paragraphs.map((p) => `<p>${_lasspEscapeHtml(p)}</p>`).join("");
-  }
-
   for (const item of overlays) {
     if (!item || typeof item !== "object") continue;
     if (!Number.isFinite(item.lat) || !Number.isFinite(item.lng)) continue;
@@ -244,10 +242,15 @@ async function loadMapOverlaysFromJson(jsonUrl, opts = {}) {
     const titleEl = node.querySelector("[data-overlay-title]");
     if (titleEl) titleEl.textContent = String(item.title);
 
-    // Body (trusted HTML from your JSON)
+    // Body (DOM-safe; paragraphs-only)
     const bodyEl = node.querySelector("[data-overlay-body]");
-    if (bodyEl)
-      bodyEl.innerHTML = String(paragraphsToHtml(item.bodyParagraphs) || "");
+    if (bodyEl) {
+      bodyEl.innerHTML = "";
+      _lasspAppendParagraphs(
+        bodyEl,
+        Array.isArray(item.bodyParagraphs) ? item.bodyParagraphs : [],
+      );
+    }
 
     // Icon SVG (raw markup) in hidden child node
     const iconEl = node.querySelector(".map-overlay-icon");
@@ -260,18 +263,14 @@ async function loadMapOverlaysFromJson(jsonUrl, opts = {}) {
 // =======================
 // Shared helpers
 // =======================
-function _lasspEscapeHtml(s) {
-  return String(s).replace(
-    /[&<>"']/g,
-    (c) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      })[c],
-  );
+
+function _lasspAppendParagraphs(hostEl, paragraphs) {
+  const paras = Array.isArray(paragraphs) ? paragraphs : [];
+  for (const t of paras) {
+    const p = document.createElement("p");
+    p.textContent = String(t || "");
+    hostEl.appendChild(p);
+  }
 }
 
 function _lasspEscapeAttr(s) {
@@ -400,7 +399,7 @@ function createMapModalBinder(classSelector) {
     function openModal({ titleText, bodyHTML, iconSVG, color, textColor }) {
       closeModal();
 
-      const safeTitle = _lasspEscapeHtml(titleText || "Details");
+      const safeTitle = titleText || "Details";
       const cssColor = (color && String(color).trim()) || "#0087CD";
       const cssText = (textColor && String(textColor).trim()) || "#ffffff";
       const iconHTML = iconSVG
@@ -637,15 +636,37 @@ window.initMap = async function initMap() {
     bodies = [];
   }
 
-  function sunInfoWindowHtml(event, sun) {
-    const safeTitle = _lasspEscapeHtml(sun.title || "Details");
-    const safeDescription = _lasspEscapeHtml(sun.description || "Description");
+  function sunInfoWindowNode(event, sun) {
+    const root = document.createElement("div");
+    root.className = "lassp-iw";
+    root.setAttribute("role", "dialog");
+    root.setAttribute("aria-label", sun.title || "Details");
+
+    const head = document.createElement("div");
+    head.className = "lassp-iw__head";
+
+    const title = document.createElement("div");
+    title.className = "lassp-iw__title";
+    title.textContent = sun.title || "Details";
+
+    const close = document.createElement("button");
+    close.className = "lassp-iw__close";
+    close.type = "button";
+    close.setAttribute("aria-label", "Close");
+    close.textContent = "×";
+
+    head.appendChild(title);
+    head.appendChild(close);
+
+    const body = document.createElement("div");
+    body.className = "lassp-iw__body";
+
+    // table
+    const table = document.createElement("table");
+    table.className = "lassp-iw__table";
 
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
-
-    const safeLat = Number(lat).toFixed(6);
-    const safeLng = Number(lng).toFixed(6);
 
     const diameterMilesActual = Math.round(
       sun.diameterKm * UNITS.kmToMiles,
@@ -661,128 +682,159 @@ window.initMap = async function initMap() {
       sun.diameterKm * scaleFactor * UNITS.kmToMeters,
     ).toLocaleString();
 
-    const dual = (imperial, metric) =>
-      `
-      <td class="lassp-iw__val">
-        <div>${imperial}</div>
-        <div class="lassp-iw__muted">${metric}</div>
-      </td>
-    `.trim();
+    function addRow(label, imperial, metric) {
+      const tr = document.createElement("tr");
 
-    return `
-      <div class="lassp-iw" role="dialog" aria-label="${safeTitle}">
-        <div class="lassp-iw__head">
-          <div class="lassp-iw__title">${safeTitle}</div>
-          <button class="lassp-iw__close" type="button" aria-label="Close">×</button>
-        </div>
-  
-        <div class="lassp-iw__body">
-          <table class="lassp-iw__table">
-            <tr>
-              <td>Click location:</td>
-              ${dual(`${safeLat} lat`, `${safeLng} lon`)}
-            </tr>
-  
-            <tr>
-              <td>Diameter actual:</td>
-              ${dual(`${diameterMilesActual} mi`, `${diameterKilometersActual} km`)}
-            </tr>
-  
-            <tr>
-              <td>Diameter scaled:</td>
-              ${dual(`${diameterFeetScaled} ft`, `${diameterMetersScaled} m`)}
-            </tr>
-          </table>
-  
-          <div class="lassp-iw__desc">${safeDescription}</div>
-        </div>
-      </div>
-    `.trim();
+      const tdLabel = document.createElement("td");
+      tdLabel.textContent = label;
+
+      const tdVal = document.createElement("td");
+      tdVal.className = "lassp-iw__val";
+
+      const top = document.createElement("div");
+      top.textContent = imperial;
+
+      const muted = document.createElement("div");
+      muted.className = "lassp-iw__muted";
+      muted.textContent = metric;
+
+      tdVal.appendChild(top);
+      tdVal.appendChild(muted);
+
+      tr.appendChild(tdLabel);
+      tr.appendChild(tdVal);
+      table.appendChild(tr);
+    }
+
+    addRow(
+      "Click location:",
+      `${Number(lat).toFixed(6)} lat`,
+      `${Number(lng).toFixed(6)} lon`,
+    );
+    addRow(
+      "Diameter actual:",
+      `${diameterMilesActual} mi`,
+      `${diameterKilometersActual} km`,
+    );
+    addRow(
+      "Diameter scaled:",
+      `${diameterFeetScaled} ft`,
+      `${diameterMetersScaled} m`,
+    );
+
+    const desc = document.createElement("div");
+    desc.className = "lassp-iw__desc";
+    _lasspAppendParagraphs(desc, Array.isArray(sun.bodyParagraphs) ? sun.bodyParagraphs : []);
+
+    body.appendChild(table);
+    body.appendChild(desc);
+
+    root.appendChild(head);
+    root.appendChild(body);
+
+    return { root, closeBtn: close };
   }
 
-  function orbitInfoWindowHtml(event, body) {
-    const safeTitle = _lasspEscapeHtml(body.name || "Details");
-    const safeDescription = _lasspEscapeHtml(body.description || "Description");
+  function orbitInfoWindowNode(event, body) {
+    const root = document.createElement("div");
+    root.className = "lassp-iw";
+    root.setAttribute("role", "dialog");
+    root.setAttribute("aria-label", `${body.name || "Details"} Orbit`);
+
+    const head = document.createElement("div");
+    head.className = "lassp-iw__head";
+
+    const title = document.createElement("div");
+    title.className = "lassp-iw__title";
+    title.textContent = `${body.name || "Details"} Orbit`;
+
+    const close = document.createElement("button");
+    close.className = "lassp-iw__close";
+    close.type = "button";
+    close.setAttribute("aria-label", "Close");
+    close.textContent = "×";
+
+    head.appendChild(title);
+    head.appendChild(close);
+
+    const bodyEl = document.createElement("div");
+    bodyEl.className = "lassp-iw__body";
+
+    const table = document.createElement("table");
+    table.className = "lassp-iw__table";
 
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
-
-    const safeLat = Number(lat).toFixed(6);
-    const safeLng = Number(lng).toFixed(6);
 
     const apsidesWidthKm = Number(body.apsidesWidthKilometers) || 0;
     const perihelionKm = Number(body.perihelionKilometers) || 0;
     const aphelionKm = Number(body.aphelionKilometers) || 0;
 
-    const apsidesMilesActual = Math.round(
-      apsidesWidthKm * UNITS.kmToMiles,
-    ).toLocaleString();
-    const apsidesKmActual = Math.round(apsidesWidthKm).toLocaleString();
+    function addRow(label, imperial, metric) {
+      const tr = document.createElement("tr");
 
-    const apsidesFeetScaled = Math.round(
-      apsidesWidthKm * scaleFactor * UNITS.kmToFeet,
-    ).toLocaleString();
-    const apsidesMetersScaled = Math.round(
-      apsidesWidthKm * scaleFactor * UNITS.kmToMeters,
-    ).toLocaleString();
+      const tdLabel = document.createElement("td");
+      tdLabel.textContent = label;
 
-    const perihelionMiles = Math.round(
-      perihelionKm * UNITS.kmToMiles,
-    ).toLocaleString();
-    const perihelionKmStr = Math.round(perihelionKm).toLocaleString();
+      const tdVal = document.createElement("td");
+      tdVal.className = "lassp-iw__val";
 
-    const aphelionMiles = Math.round(
-      aphelionKm * UNITS.kmToMiles,
-    ).toLocaleString();
-    const aphelionKmStr = Math.round(aphelionKm).toLocaleString();
+      const top = document.createElement("div");
+      top.textContent = imperial;
 
-    const dual = (imperial, metric) =>
-      `
-      <td class="lassp-iw__val">
-        <div>${imperial}</div>
-        <div class="lassp-iw__muted">${metric}</div>
-      </td>
-    `.trim();
+      const muted = document.createElement("div");
+      muted.className = "lassp-iw__muted";
+      muted.textContent = metric;
 
-    return `
-      <div class="lassp-iw" role="dialog" aria-label="${safeTitle} Orbit">
-        <div class="lassp-iw__head">
-          <div class="lassp-iw__title">${safeTitle} Orbit</div>
-          <button class="lassp-iw__close" type="button" aria-label="Close">×</button>
-        </div>
-  
-        <div class="lassp-iw__body">
-          <table class="lassp-iw__table">
-            <tr>
-              <td>Click location:</td>
-              ${dual(`${safeLat} lat`, `${safeLng} lon`)}
-            </tr>
-  
-            <tr>
-              <td>Apsides width actual:</td>
-              ${dual(`${apsidesMilesActual} mi`, `${apsidesKmActual} km`)}
-            </tr>
-  
-            <tr>
-              <td>Apsides width scaled:</td>
-              ${dual(`${apsidesFeetScaled} ft`, `${apsidesMetersScaled} m`)}
-            </tr>
-  
-            <tr>
-              <td>Perihelion:</td>
-              ${dual(`${perihelionMiles} mi`, `${perihelionKmStr} km`)}
-            </tr>
-  
-            <tr>
-              <td>Aphelion:</td>
-              ${dual(`${aphelionMiles} mi`, `${aphelionKmStr} km`)}
-            </tr>
-          </table>
-  
-          <div class="lassp-iw__desc">${safeDescription}</div>
-        </div>
-      </div>
-    `.trim();
+      tdVal.appendChild(top);
+      tdVal.appendChild(muted);
+
+      tr.appendChild(tdLabel);
+      tr.appendChild(tdVal);
+      table.appendChild(tr);
+    }
+
+    addRow(
+      "Click location:",
+      `${Number(lat).toFixed(6)} lat`,
+      `${Number(lng).toFixed(6)} lon`,
+    );
+
+    addRow(
+      "Apsides width actual:",
+      `${Math.round(apsidesWidthKm * UNITS.kmToMiles).toLocaleString()} mi`,
+      `${Math.round(apsidesWidthKm).toLocaleString()} km`,
+    );
+
+    addRow(
+      "Apsides width scaled:",
+      `${Math.round(apsidesWidthKm * scaleFactor * UNITS.kmToFeet).toLocaleString()} ft`,
+      `${Math.round(apsidesWidthKm * scaleFactor * UNITS.kmToMeters).toLocaleString()} m`,
+    );
+
+    addRow(
+      "Perihelion:",
+      `${Math.round(perihelionKm * UNITS.kmToMiles).toLocaleString()} mi`,
+      `${Math.round(perihelionKm).toLocaleString()} km`,
+    );
+
+    addRow(
+      "Aphelion:",
+      `${Math.round(aphelionKm * UNITS.kmToMiles).toLocaleString()} mi`,
+      `${Math.round(aphelionKm).toLocaleString()} km`,
+    );
+
+    const desc = document.createElement("div");
+    desc.className = "lassp-iw__desc";
+    _lasspAppendParagraphs(desc, Array.isArray(body.bodyParagraphs) ? body.bodyParagraphs : []);
+
+    bodyEl.appendChild(table);
+    bodyEl.appendChild(desc);
+
+    root.appendChild(head);
+    root.appendChild(bodyEl);
+
+    return { root, closeBtn: close };
   }
 
   const center = new google.maps.LatLng(SUN.lat, SUN.lng);
@@ -819,16 +871,12 @@ window.initMap = async function initMap() {
     bodyApsides.addListener("click", function (event) {
       clearInterval(intervalId);
 
-      infoWindow.setContent(orbitInfoWindowHtml(event, body));
-
+      const { root, closeBtn } = orbitInfoWindowNode(event, body);
+      infoWindow.setContent(root);
       infoWindow.setPosition(event.latLng);
       infoWindow.open(map);
-      google.maps.event.addListenerOnce(infoWindow, "domready", () => {
-        const btn = document.querySelector(".lassp-iw__close");
-        if (btn)
-          btn.addEventListener("click", () => infoWindow.close(), {
-            once: true,
-          });
+      closeBtn.addEventListener("click", () => infoWindow.close(), {
+        once: true,
       });
     });
   }
@@ -843,14 +891,12 @@ window.initMap = async function initMap() {
   sunIcon.addListener("click", function (event) {
     clearInterval(intervalId);
 
-    infoWindow.setContent(sunInfoWindowHtml(event, SUN));
-
+    const { root, closeBtn } = sunInfoWindowNode(event, SUN);
+    infoWindow.setContent(root);
     infoWindow.setPosition(event.latLng);
     infoWindow.open(map);
-    google.maps.event.addListenerOnce(infoWindow, "domready", () => {
-      const btn = document.querySelector(".lassp-iw__close");
-      if (btn)
-        btn.addEventListener("click", () => infoWindow.close(), { once: true });
+    closeBtn.addEventListener("click", () => infoWindow.close(), {
+      once: true,
     });
   });
 
@@ -951,7 +997,7 @@ LASSP.initMarkerMiniMap =
     const infoWindow = new google.maps.InfoWindow();
 
     function markerInfoWindowHtml({ title, lat, lng }) {
-      const safeTitle = _lasspEscapeHtml(title || "Details");
+      const safeTitle = title || "Details";
       const safeLat = Number(lat).toFixed(6);
       const safeLng = Number(lng).toFixed(6);
 

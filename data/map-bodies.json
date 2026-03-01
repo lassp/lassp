@@ -1,7 +1,12 @@
 [
   {
     "name": "Mercury",
-    "description": "Some details about Mercury.",
+    "bodyParagraphs": [
+      "Fastest planet: a year is 88 Earth days.",
+      "Extreme temperature swings; no real atmosphere to spread heat.",
+      "Heavily cratered surface, Moon-like but denser.",
+      "Huge iron core for its size; magnetic field exists but weak."
+    ],
     "perihelionKilometers": 46000000,
     "aphelionKilometers": 69820000,
     "strokeColor": "#0000FF",
@@ -12,7 +17,12 @@
   },
   {
     "name": "Venus",
-    "description": "Some details about Venus.",
+    "bodyParagraphs": [
+      "Hottest planet: runaway greenhouse under thick CO₂ clouds.",
+      "Rotates backward (retrograde) and very slowly.",
+      "Surface pressure is ~90× Earth’s—like being 1 km under the ocean.",
+      "Brightest planet in our sky after the Sun and Moon."
+    ],
     "perihelionKilometers": 107480000,
     "aphelionKilometers": 108940000,
     "strokeColor": "#0000FF",
@@ -23,7 +33,12 @@
   },
   {
     "name": "Earth",
-    "description": "Some details about Earth.",
+    "bodyParagraphs": [
+      "Only known world with surface liquid water and life.",
+      "Plate tectonics recycles crust and stabilizes climate over geologic time.",
+      "Strong magnetic field helps shield atmosphere from the solar wind.",
+      "One large Moon stabilizes axial tilt and drives tides."
+    ],
     "perihelionKilometers": 147098450,
     "aphelionKilometers": 152097597,
     "strokeColor": "#0000FF",
@@ -34,7 +49,12 @@
   },
   {
     "name": "Mars",
-    "description": "Some details about Mars.",
+    "bodyParagraphs": [
+      "Thin CO₂ atmosphere; cold, dry, and dusty.",
+      "Home to Olympus Mons, the Solar System’s tallest volcano.",
+      "Evidence of ancient rivers and lakes; water ice persists today.",
+      "Two tiny moons: Phobos and Deimos."
+    ],
     "perihelionKilometers": 206650000,
     "aphelionKilometers": 249261000,
     "strokeColor": "#0000FF",
@@ -45,7 +65,12 @@
   },
   {
     "name": "Asteroid Belt",
-    "description": "Some details about the Asteroid Belt.",
+    "bodyParagraphs": [
+      "Not a debris field you’d crash through—vastly spread out.",
+      "Contains Ceres (a dwarf planet) plus millions of smaller bodies.",
+      "Source region for many meteorites found on Earth.",
+      "A gravitational ‘stir zone’ shaped strongly by Jupiter."
+    ],
     "perihelionKilometers": 258664545,
     "aphelionKilometers": 563179328,
     "strokeColor": "#0000FF",
@@ -56,7 +81,12 @@
   },
   {
     "name": "Jupiter",
-    "description": "Some details about Jupiter.",
+    "bodyParagraphs": [
+      "Largest planet; more mass than all other planets combined.",
+      "Great Red Spot: a long-lived storm larger than Earth.",
+      "Powerful magnetic field; intense radiation belts.",
+      "Dozens of moons; Io, Europa, Ganymede, Callisto are the big four."
+    ],
     "perihelionKilometers": 740595000,
     "aphelionKilometers": 816363000,
     "strokeColor": "#0000FF",
@@ -67,7 +97,12 @@
   },
   {
     "name": "Saturn",
-    "description": "Some details about Saturn.",
+    "bodyParagraphs": [
+      "Most iconic rings: countless icy particles from dust to boulders.",
+      "Lower density than water (in the abstract sense: it would ‘float’).",
+      "Titan has a thick atmosphere and methane seas.",
+      "Enceladus vents water-rich plumes—an ocean world candidate."
+    ],
     "perihelionKilometers": 1352550000,
     "aphelionKilometers": 1514500000,
     "strokeColor": "#0000FF",
@@ -78,7 +113,12 @@
   },
   {
     "name": "Uranus",
-    "description": "Some details about Uranus.",
+    "bodyParagraphs": [
+      "Axial tilt ~98°: it rolls around the Sun on its side.",
+      "Blue-green color from methane absorbing red light.",
+      "An ‘ice giant’ with a mantle rich in water/ammonia/methane ices.",
+      "Has faint rings and many small moons."
+    ],
     "perihelionKilometers": 2735560000,
     "aphelionKilometers": 3006390000,
     "strokeColor": "#0000FF",
@@ -89,7 +129,12 @@
   },
   {
     "name": "Kuiper Belt and Pluto",
-    "description": "Some details about the Kuiper Belt and Pluto.",
+    "bodyParagraphs": [
+      "A wide disk of icy bodies beyond Neptune; source of many comets.",
+      "Pluto is a dwarf planet in a binary-like dance with Charon.",
+      "Many Kuiper Belt Objects are in resonances with Neptune’s orbit.",
+      "Pluto’s atmosphere is thin and can freeze out as it recedes from the Sun."
+    ],
     "perihelionKilometers": 4488000000,
     "aphelionKilometers": 8228000000,
     "strokeColor": "#0000FF",
@@ -100,7 +145,12 @@
   },
   {
     "name": "Neptune",
-    "description": "Some details about Neptune.",
+    "bodyParagraphs": [
+      "Farthest major planet; a year is ~165 Earth years.",
+      "Fastest winds measured on any planet in the Solar System.",
+      "Deep blue color from methane plus atmospheric haze effects.",
+      "Triton orbits backward and is likely a captured Kuiper Belt object."
+    ],
     "perihelionKilometers": 4460000000,
     "aphelionKilometers": 4540000000,
     "strokeColor": "#0000FF",
@@ -111,7 +161,12 @@
   },
   {
     "name": "Oort Cloud",
-    "description": "Far, Far Away. The Oort Cloud is a spherical layer of icy objects that occupies space at a distance between about 2,000 and 100,000 astronomical units (AU) from the Sun. At the scale of the model, the aphelion meets on the opposite side of the globe at just over 6,000 AU.",
+    "bodyParagraphs": [
+      "A hypothetical, distant reservoir of icy bodies surrounding the Solar System.",
+      "Likely source of many long-period comets that arrive from all directions.",
+      "May extend a significant fraction of the way to the nearest stars.",
+      "Its objects are weakly bound; passing stars and galactic tides can perturb them."
+    ],
     "perihelionKilometers": 299200000000,
     "aphelionKilometers": 915000000000,
     "strokeColor": "#0000FF",
