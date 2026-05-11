@@ -24,7 +24,7 @@
       "Brightest planet in our sky after the Sun and Moon."
     ],
     "perihelionKilometers": 107480000,
-    "aphelionKilometers": 108940000,
+    "aphelionKilometers": 111000000,
     "strokeColor": "#0000FF",
     "strokeOpacity": 0.8,
     "strokeWeight": 0,
@@ -39,7 +39,7 @@
       "Strong magnetic field helps shield atmosphere from the solar wind.",
       "One large Moon stabilizes axial tilt and drives tides."
     ],
-    "perihelionKilometers": 147098450,
+    "perihelionKilometers": 140000000,
     "aphelionKilometers": 152097597,
     "strokeColor": "#0000FF",
     "strokeOpacity": 0.8,
@@ -65,6 +65,7 @@
   },
   {
     "name": "Asteroid Belt",
+    "markerTitle": "Ceres",
     "bodyParagraphs": [
       "Not a debris field you’d crash through—vastly spread out.",
       "Contains Ceres (a dwarf planet) plus millions of smaller bodies.",
@@ -87,7 +88,7 @@
       "Powerful magnetic field; intense radiation belts.",
       "Dozens of moons; Io, Europa, Ganymede, Callisto are the big four."
     ],
-    "perihelionKilometers": 740595000,
+    "perihelionKilometers": 707910361,
     "aphelionKilometers": 816363000,
     "strokeColor": "#0000FF",
     "strokeOpacity": 0.8,
@@ -129,6 +130,7 @@
   },
   {
     "name": "Kuiper Belt and Pluto",
+    "markerTitle": "Pluto",
     "bodyParagraphs": [
       "A wide disk of icy bodies beyond Neptune; source of many comets.",
       "Pluto is a dwarf planet in a binary-like dance with Charon.",
@@ -152,7 +154,7 @@
       "Triton orbits backward and is likely a captured Kuiper Belt object."
     ],
     "perihelionKilometers": 4460000000,
-    "aphelionKilometers": 4540000000,
+    "aphelionKilometers": 4800000000,
     "strokeColor": "#0000FF",
     "strokeOpacity": 0.8,
     "strokeWeight": 0,

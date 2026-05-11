@@ -127,6 +127,7 @@ async function loadBodiesFromJson(jsonUrl) {
       fillOpacity: Number.isFinite(Number(b.fillOpacity))
         ? Number(b.fillOpacity)
         : 0.35,
+      markerTitle: typeof b.markerTitle === "string" ? b.markerTitle.trim() : "",
       markers: Array.isArray(b.markers) ? b.markers : [],
     }));
 }
@@ -374,112 +375,172 @@ function _lasspMakeMarkerWrap(markerUrl, size = 44) {
   return wrap;
 }
 
+function _lasspFindOverlayEl(title) {
+  const norm = (s) => String(s).trim().toLowerCase();
+  for (const el of document.querySelectorAll(".map-overlay")) {
+    const t = el.querySelector("[data-overlay-title]")?.textContent || "";
+    if (norm(t) === norm(title)) return el;
+  }
+  return null;
+}
+
+function _lasspOrbitBodyHtml(event, body) {
+  const lat = event.latLng.lat();
+  const lng = event.latLng.lng();
+  const apsidesWidthKm = Number(body.apsidesWidthKilometers) || 0;
+  const perihelionKm = Number(body.perihelionKilometers) || 0;
+  const aphelionKm = Number(body.aphelionKilometers) || 0;
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function row(label, imp, met) {
+    return `<tr><td>${esc(label)}</td><td class="lassp-iw__val"><div>${esc(imp)}</div><div class="lassp-iw__muted">${esc(met)}</div></td></tr>`;
+  }
+
+  const rows = [
+    row("Click location:", `${Number(lat).toFixed(6)} lat`, `${Number(lng).toFixed(6)} lon`),
+    row(
+      "Apsides width actual:",
+      `${Math.round(apsidesWidthKm * UNITS.kmToMiles).toLocaleString()} mi`,
+      `${Math.round(apsidesWidthKm).toLocaleString()} km`,
+    ),
+    row(
+      "Apsides width scaled:",
+      `${Math.round(apsidesWidthKm * scaleFactor * UNITS.kmToFeet).toLocaleString()} ft`,
+      `${Math.round(apsidesWidthKm * scaleFactor * UNITS.kmToMeters).toLocaleString()} m`,
+    ),
+    row(
+      "Perihelion:",
+      `${Math.round(perihelionKm * UNITS.kmToMiles).toLocaleString()} mi`,
+      `${Math.round(perihelionKm).toLocaleString()} km`,
+    ),
+    row(
+      "Aphelion:",
+      `${Math.round(aphelionKm * UNITS.kmToMiles).toLocaleString()} mi`,
+      `${Math.round(aphelionKm).toLocaleString()} km`,
+    ),
+  ].join("");
+
+  const paras = (Array.isArray(body.bodyParagraphs) ? body.bodyParagraphs : [])
+    .map((t) => `<p>${esc(String(t || ""))}</p>`)
+    .join("");
+
+  return `<table class="lassp-iw__table">${rows}</table>${paras ? `<div class="lassp-iw__desc">${paras}</div>` : ""}`;
+}
+
 // =======================
-// Custom modal binder (unchanged)
+// Custom modal binder
 // =======================
 function createMapModalBinder(classSelector) {
-  return function bindModals(map) {
-    const mapDiv = map.getDiv();
-    const templateEls = Array.from(document.querySelectorAll(classSelector));
+  let mapDiv = null;
+  let modalBackdrop = null;
 
-    let modalBackdrop = null;
-
-    function closeModal() {
-      if (modalBackdrop) {
-        modalBackdrop.remove();
-        modalBackdrop = null;
-      }
-      document.removeEventListener("keydown", onKeyDown, true);
+  function closeModal() {
+    if (modalBackdrop) {
+      modalBackdrop.remove();
+      modalBackdrop = null;
     }
+    document.removeEventListener("keydown", onKeyDown, true);
+  }
 
-    function onKeyDown(e) {
-      if (e.key === "Escape") closeModal();
-    }
+  function onKeyDown(e) {
+    if (e.key === "Escape") closeModal();
+  }
 
-    function openModal({ titleText, bodyHTML, iconSVG, color, textColor }) {
-      closeModal();
+  function openModal({ titleText, bodyHTML, iconSVG, color, textColor }) {
+    if (!mapDiv) return;
+    closeModal();
 
-      const safeTitle = titleText || "Details";
-      const cssColor = (color && String(color).trim()) || "#0087CD";
-      const cssText = (textColor && String(textColor).trim()) || "#ffffff";
-      const iconHTML = iconSVG
-        ? `<span class="map-modal-titleIcon" aria-hidden="true">${iconSVG}</span>`
-        : "";
+    const safeTitle = titleText || "Details";
+    const cssColor = (color && String(color).trim()) || "#0087CD";
+    const cssText = (textColor && String(textColor).trim()) || "#ffffff";
+    const iconHTML = iconSVG
+      ? `<span class="map-modal-titleIcon" aria-hidden="true">${iconSVG}</span>`
+      : "";
 
-      const slugify =
-        window.LASSP && typeof window.LASSP.slugifyTitle === "function"
-          ? window.LASSP.slugifyTitle
-          : null;
+    const slugify =
+      window.LASSP && typeof window.LASSP.slugifyTitle === "function"
+        ? window.LASSP.slugifyTitle
+        : null;
 
-      const slug = slugify ? slugify(titleText || "") : "";
+    const slug = slugify ? slugify(titleText || "") : "";
 
-      const modelHref =
-        slug && window.LASSP && typeof window.LASSP.sitePath === "function"
-          ? window.LASSP.sitePath("model/") + slug
-          : slug
-            ? `/model/${slug}`
-            : "";
+    const modelHref =
+      slug && window.LASSP && typeof window.LASSP.sitePath === "function"
+        ? window.LASSP.sitePath("model/") + slug
+        : slug
+          ? `/model/${slug}`
+          : "";
 
-      modalBackdrop = document.createElement("div");
-      modalBackdrop.className = "map-modal-backdrop";
-      modalBackdrop.innerHTML = `
-        <div class="map-modal-panel"
-             role="dialog"
-             aria-modal="true"
-             aria-label="${safeTitle}"
-             style="--overlay-color:${_lasspEscapeAttr(
-               cssColor,
-             )}; --overlay-text:${_lasspEscapeAttr(cssText)}">
-          <div class="map-modal-header">
-            <div class="map-modal-titleRow">
-              ${iconHTML}
-              <h2 class="map-modal-title">${safeTitle}</h2>
-            </div>
-            <button class="map-modal-close" type="button" aria-label="Close">×</button>
+    modalBackdrop = document.createElement("div");
+    modalBackdrop.className = "map-modal-backdrop";
+    modalBackdrop.innerHTML = `
+      <div class="map-modal-panel"
+           role="dialog"
+           aria-modal="true"
+           aria-label="${safeTitle}"
+           style="--overlay-color:${_lasspEscapeAttr(
+             cssColor,
+           )}; --overlay-text:${_lasspEscapeAttr(cssText)}">
+        <div class="map-modal-header">
+          <div class="map-modal-titleRow">
+            ${iconHTML}
+            <h2 class="map-modal-title">${safeTitle}</h2>
           </div>
-
-          <div class="map-modal-body">
-            ${bodyHTML}
-            ${
-              modelHref
-                ? `
-              <div class="map-modal-footer">
-                <a class="map-modal-model-link" href="${_lasspEscapeAttr(
-                  modelHref,
-                )}">
-                  <span>View model page</span>
-                  <svg class="icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
-                    <path fill="currentColor" d="M7.5 4.5a1 1 0 0 1 1.4 0l5 5a1 1 0 0 1 0 1.4l-5 5a1 1 0 1 1-1.4-1.4L11.8 10 7.5 5.9a1 1 0 0 1 0-1.4z"/>
-                  </svg>
-                </a>
-              </div>
-            `
-                : ""
-            }
-          </div>
+          <button class="map-modal-close" type="button" aria-label="Close">×</button>
         </div>
-      `;
 
-      modalBackdrop.addEventListener("click", () => closeModal());
-      modalBackdrop
-        .querySelector(".map-modal-panel")
-        .addEventListener("click", (e) => e.stopPropagation());
-      modalBackdrop
-        .querySelector(".map-modal-close")
-        .addEventListener("click", (e) => {
-          e.stopPropagation();
-          closeModal();
-        });
+        <div class="map-modal-body">
+          ${bodyHTML}
+          ${
+            modelHref
+              ? `
+            <div class="map-modal-footer">
+              <a class="map-modal-model-link" href="${_lasspEscapeAttr(
+                modelHref,
+              )}">
+                <span>View model page</span>
+                <svg class="icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                  <path fill="currentColor" d="M7.5 4.5a1 1 0 0 1 1.4 0l5 5a1 1 0 0 1 0 1.4l-5 5a1 1 0 1 1-1.4-1.4L11.8 10 7.5 5.9a1 1 0 0 1 0-1.4z"/>
+                </svg>
+              </a>
+            </div>
+          `
+              : ""
+          }
+        </div>
+      </div>
+    `;
 
-      const cs = getComputedStyle(mapDiv);
-      if (cs.position === "static") mapDiv.style.position = "relative";
+    modalBackdrop.addEventListener("click", () => closeModal());
+    modalBackdrop
+      .querySelector(".map-modal-panel")
+      .addEventListener("click", (e) => e.stopPropagation());
+    modalBackdrop
+      .querySelector(".map-modal-close")
+      .addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeModal();
+      });
 
-      mapDiv.appendChild(modalBackdrop);
-      document.addEventListener("keydown", onKeyDown, true);
+    const cs = getComputedStyle(mapDiv);
+    if (cs.position === "static") mapDiv.style.position = "relative";
 
-      const link = modalBackdrop.querySelector(".map-modal-model-link");
-      if (link) requestAnimationFrame(() => link.classList.add("is-visible"));
-    }
+    mapDiv.appendChild(modalBackdrop);
+    document.addEventListener("keydown", onKeyDown, true);
+
+    const link = modalBackdrop.querySelector(".map-modal-model-link");
+    if (link) requestAnimationFrame(() => link.classList.add("is-visible"));
+  }
+
+  function bindModals(map) {
+    mapDiv = map.getDiv();
+    const templateEls = Array.from(document.querySelectorAll(classSelector));
 
     templateEls.forEach((el) => {
       const lat = parseFloat(el.dataset.lat);
@@ -531,7 +592,10 @@ function createMapModalBinder(classSelector) {
     });
 
     map.addListener("click", () => closeModal());
-  };
+  }
+
+  bindModals.openModal = openModal;
+  return bindModals;
 }
 
 // =======================
@@ -871,13 +935,24 @@ window.initMap = async function initMap() {
     bodyApsides.addListener("click", function (event) {
       clearInterval(intervalId);
 
-      const { root, closeBtn } = orbitInfoWindowNode(event, body);
-      infoWindow.setContent(root);
-      infoWindow.setPosition(event.latLng);
-      infoWindow.open(map);
-      closeBtn.addEventListener("click", () => infoWindow.close(), {
-        once: true,
-      });
+      const lookupTitle = body.markerTitle || body.name;
+      const overlayEl = _lasspFindOverlayEl(lookupTitle);
+      if (overlayEl) {
+        infoWindow.close();
+        bindModals.openModal({
+          titleText: overlayEl.querySelector("[data-overlay-title]")?.textContent?.trim() || body.name,
+          bodyHTML: overlayEl.querySelector("[data-overlay-body]")?.innerHTML || "",
+          iconSVG: overlayEl.querySelector(".map-overlay-icon")?.innerHTML?.trim() || "",
+          color: overlayEl.dataset.color || body.fillColor,
+          textColor: overlayEl.dataset.textColor || "#ffffff",
+        });
+      } else {
+        const { root, closeBtn } = orbitInfoWindowNode(event, body);
+        infoWindow.setContent(root);
+        infoWindow.setPosition(event.latLng);
+        infoWindow.open(map);
+        closeBtn.addEventListener("click", () => infoWindow.close(), { once: true });
+      }
     });
   }
 
@@ -903,7 +978,8 @@ window.initMap = async function initMap() {
   map.setZoom(zoomLevels[0]);
   intervalId = window.setInterval(zoomOut, 2000);
 
-  createMapModalBinder(".map-overlay")(map);
+  const bindModals = createMapModalBinder(".map-overlay");
+  bindModals(map);
   installExpandMapControl();
 };
 
