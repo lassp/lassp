@@ -143,19 +143,59 @@ let zoomIndex = 1;
 let intervalId;
 let _zoomingOut = false;
 
+// =======================
+// Zoom progress bar
+// =======================
+function _getZoomProgressBar() {
+  let bar = document.getElementById("zoom-progress");
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.id = "zoom-progress";
+    bar.innerHTML = '<div id="zoom-progress-fill"></div>';
+    // Append to .map-wrap (parent of #map-canvas) so it shares
+    // the same positioning context as the Expand Map button.
+    const container = map.getDiv().parentElement || map.getDiv();
+    container.appendChild(bar);
+  }
+  return bar;
+}
+
+function _animateZoomProgress(durationMs) {
+  const bar = _getZoomProgressBar();
+  const fill = bar.querySelector("#zoom-progress-fill");
+  // Reset without transition, then kick off the fill
+  fill.style.transition = "none";
+  fill.style.width = "0%";
+  bar.hidden = false;
+  void fill.offsetWidth; // force reflow
+  fill.style.transition = `width ${durationMs}ms linear`;
+  fill.style.width = "100%";
+}
+
+function _hideZoomProgress() {
+  const bar = document.getElementById("zoom-progress");
+  if (bar) bar.hidden = true;
+}
+
 function cancelZoom() {
   clearTimeout(intervalId);
+  _hideZoomProgress();
 }
 
 function scheduleNextZoom() {
   if (zoomIndex >= zoomLevels.length) return;
   const delay = ZOOM_DELAY_BASE * Math.pow(2, zoomIndex - 1);
+  _animateZoomProgress(delay);
   intervalId = setTimeout(function () {
     if (zoomIndex >= zoomLevels.length) return;
     _zoomingOut = true;
     map.setZoom(zoomLevels[zoomIndex++]);
     _zoomingOut = false;
-    scheduleNextZoom();
+    if (zoomIndex >= zoomLevels.length) {
+      _hideZoomProgress();
+    } else {
+      scheduleNextZoom();
+    }
   }, delay);
 }
 
