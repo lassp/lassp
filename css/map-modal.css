@@ -164,6 +164,36 @@
   flex: 0 0 auto;
 }
 
+/* Thumbnail strip above footer */
+.map-modal-thumbs {
+  display: flex;
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+
+.map-modal-thumbs a {
+  flex: 1 1 0;
+  min-width: 0;
+  display: block;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  opacity: 0.82;
+  transition: opacity 150ms ease, border-color 150ms ease;
+  text-decoration: none;
+}
+
+.map-modal-thumbs a:hover {
+  opacity: 1;
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+.map-modal-thumbs img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
 @media (prefers-color-scheme: dark) {
   .map-modal-backdrop {
     background: rgba(0, 0, 0, 0.7);

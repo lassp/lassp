@@ -269,6 +269,10 @@ async function loadMapOverlaysFromJson(jsonUrl, opts = {}) {
       node.dataset.hideAtZoom = String(item.hideAtZoom);
     }
 
+    if (item.illustrationPath) {
+      node.dataset.illustrationPath = String(item.illustrationPath).trim();
+    }
+
     mount.appendChild(node);
   }
 }
@@ -464,7 +468,7 @@ function createMapModalBinder(classSelector) {
     if (e.key === "Escape") closeModal();
   }
 
-  function openModal({ titleText, bodyHTML, iconSVG, color, textColor }) {
+  function openModal({ titleText, bodyHTML, iconSVG, color, textColor, thumbnailBase }) {
     if (!mapDiv) return;
     closeModal();
 
@@ -482,12 +486,28 @@ function createMapModalBinder(classSelector) {
 
     const slug = slugify ? slugify(titleText || "") : "";
 
-    const modelHref =
-      slug && window.LASSP && typeof window.LASSP.sitePath === "function"
-        ? window.LASSP.sitePath("model/") + slug
-        : slug
-          ? `/model/${slug}`
-          : "";
+    const sitePath =
+      window.LASSP && typeof window.LASSP.sitePath === "function"
+        ? window.LASSP.sitePath
+        : (p) => `/${p}`;
+
+    const modelHref = slug ? sitePath("model/") + slug : "";
+
+    let thumbsHTML = "";
+    if (thumbnailBase && modelHref) {
+      const illThumb = sitePath("img/illustrations/thumbs/") + thumbnailBase + "-tn.jpg";
+      const fabThumb = sitePath("img/fabdrawings/thumbs/") + thumbnailBase + "-fab-tn.jpg";
+      thumbsHTML = `
+        <div class="map-modal-thumbs">
+          <a href="${_lasspEscapeAttr(modelHref)}#illustration" title="View illustration">
+            <img src="${_lasspEscapeAttr(illThumb)}" alt="${_lasspEscapeAttr(safeTitle)} illustration" loading="lazy" />
+          </a>
+          <a href="${_lasspEscapeAttr(modelHref)}#fabdrawing" title="View fabrication drawing">
+            <img src="${_lasspEscapeAttr(fabThumb)}" alt="${_lasspEscapeAttr(safeTitle)} fabrication drawing" loading="lazy" />
+          </a>
+        </div>
+      `;
+    }
 
     modalBackdrop = document.createElement("div");
     modalBackdrop.className = "map-modal-backdrop";
@@ -509,6 +529,7 @@ function createMapModalBinder(classSelector) {
 
         <div class="map-modal-body">
           ${bodyHTML}
+          ${thumbsHTML}
           ${
             modelHref
               ? `
@@ -571,6 +592,11 @@ function createMapModalBinder(classSelector) {
         el.querySelector(".map-overlay-icon")?.innerHTML || ""
       ).trim();
 
+      const illustrationPath = (el.dataset.illustrationPath || "").trim();
+      const thumbnailBase = illustrationPath
+        ? illustrationPath.replace(/^.*\//, "").replace(/\.[^.]+$/, "")
+        : "";
+
       const markerSvg = _lasspBuildCenteredMarkerSvg({
         iconSVG,
         bgColor: color,
@@ -600,6 +626,7 @@ function createMapModalBinder(classSelector) {
           iconSVG,
           color,
           textColor,
+          thumbnailBase,
         });
       });
 
@@ -961,12 +988,17 @@ window.initMap = async function initMap() {
       const overlayEl = _lasspFindOverlayEl(lookupTitle);
       if (overlayEl) {
         infoWindow.close();
+        const overlayIllPath = (overlayEl.dataset.illustrationPath || "").trim();
+        const overlayThumbBase = overlayIllPath
+          ? overlayIllPath.replace(/^.*\//, "").replace(/\.[^.]+$/, "")
+          : "";
         bindModals.openModal({
           titleText: overlayEl.querySelector("[data-overlay-title]")?.textContent?.trim() || body.name,
           bodyHTML: overlayEl.querySelector("[data-overlay-body]")?.innerHTML || "",
           iconSVG: overlayEl.querySelector(".map-overlay-icon")?.innerHTML?.trim() || "",
           color: overlayEl.dataset.color || body.fillColor,
           textColor: overlayEl.dataset.textColor || "#ffffff",
+          thumbnailBase: overlayThumbBase,
         });
       } else {
         const { root, closeBtn } = orbitInfoWindowNode(event, body);
