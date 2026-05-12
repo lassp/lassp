@@ -1178,7 +1178,7 @@ LASSP.initMarkerMiniMap =
 
     const miniMap = new google.maps.Map(el, {
       center,
-      zoom: typeof opts.zoom === "number" ? opts.zoom : 15,
+      zoom: 10,
       mapTypeId: google.maps.MapTypeId.SATELLITE,
       tilt: 0,
       mapId: "lassp_map_id",
@@ -1349,6 +1349,74 @@ LASSP.initMarkerMiniMap =
       );
     }
 
-    // Mini-map centered on the topic marker
-    miniMap.setCenter(center);
+    // Distance label at the midpoint of the dimension line
+    (function addDimensionLabel() {
+      const R = 6371; // km
+      const toRad = (d) => (d * Math.PI) / 180;
+      const dLat = toRad(marker.lat - SUN.lat);
+      const dLng = toRad(marker.lng - SUN.lng);
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(SUN.lat)) *
+          Math.cos(toRad(marker.lat)) *
+          Math.sin(dLng / 2) ** 2;
+      const distKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distMi = distKm * 0.621371;
+
+      const fmt = (n) =>
+        n < 10 ? n.toFixed(1) : Math.round(n).toLocaleString();
+
+      const labelEl = document.createElement("div");
+      labelEl.textContent = `${fmt(distMi)} mi (${fmt(distKm)} km)`;
+      Object.assign(labelEl.style, {
+        background: "rgba(15,23,42,0.82)",
+        color: "#e8eaf0",
+        fontSize: "11px",
+        fontWeight: "600",
+        padding: "3px 7px",
+        borderRadius: "4px",
+        whiteSpace: "nowrap",
+        pointerEvents: "none",
+        userSelect: "none",
+      });
+
+      new google.maps.marker.AdvancedMarkerElement({
+        position: {
+          lat: (SUN.lat + marker.lat) / 2,
+          lng: (SUN.lng + marker.lng) / 2,
+        },
+        map: miniMap,
+        content: labelEl,
+      });
+    })();
+
+    // Dimension line between The Sun and the topic marker
+    new google.maps.Polyline({
+      path: [
+        { lat: SUN.lat, lng: SUN.lng },
+        { lat: marker.lat, lng: marker.lng },
+      ],
+      map: miniMap,
+      geodesic: true,
+      strokeColor: "#ffffff",
+      strokeOpacity: 0,
+      icons: [
+        {
+          icon: {
+            path: "M 0,-1 0,1",
+            strokeOpacity: 0.7,
+            strokeColor: "#ffffff",
+            scale: 2,
+          },
+          offset: "0",
+          repeat: "12px",
+        },
+      ],
+    });
+
+    // Fit the mini-map so both the topic marker and The Sun are visible
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(new google.maps.LatLng(marker.lat, marker.lng));
+    bounds.extend(new google.maps.LatLng(SUN.lat, SUN.lng));
+    miniMap.fitBounds(bounds, 32);
   };
