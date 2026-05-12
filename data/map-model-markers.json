@@ -14,6 +14,7 @@
   },
   {
     "title": "Mercury",
+    "hideAtZoom": 12,
     "lat": 34.113192,
     "lng": -118.308047,
     "color": "#ED1C24",
@@ -27,6 +28,7 @@
   },
   {
     "title": "Venus",
+    "hideAtZoom": 11,
     "lat": 34.101089,
     "lng": -118.293547,
     "color": "#00AF53",
@@ -40,6 +42,7 @@
   },
   {
     "title": "Earth",
+    "hideAtZoom": 9,
     "lat": 34.097867,
     "lng": -118.312883,
     "color": "#0074BD",
@@ -53,6 +56,7 @@
   },
   {
     "title": "Mars",
+    "hideAtZoom": 10,
     "lat": 34.101819,
     "lng": -118.338917,
     "color": "#ED1C24",
@@ -66,6 +70,7 @@
   },
   {
     "title": "Ceres",
+    "hideAtZoom": 8,
     "lat": 34.074544,
     "lng": -118.239303,
     "color": "#231F20",
@@ -79,6 +84,7 @@
   },
   {
     "title": "Asteroids (Vesta)",
+    "hideAtZoom": 8,
     "lat": 34.063822,
     "lng": -118.360761,
     "color": "#231F20",

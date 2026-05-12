@@ -135,17 +135,25 @@ async function loadBodiesFromJson(jsonUrl) {
 // Map in global scope (used by other helpers)
 let map;
 
-const zoomLevels = [21, 19, 17, 14, 11, 8]; // (you said start at 15 elsewhere; leaving as-is per current file)
+const zoomLevels = [20, 13, 10, 8];
 let zoomIndex = 1;
 let intervalId;
+let _zoomingOut = false;
 
-function zoomOut() {
-  if (zoomIndex < zoomLevels.length) {
+function cancelZoom() {
+  clearTimeout(intervalId);
+}
+
+function scheduleNextZoom() {
+  const step = zoomIndex; // step 1 → 2000ms, step 2 → 4000ms, …
+  intervalId = setTimeout(function zoomOut() {
+    if (zoomIndex >= zoomLevels.length) return;
+    _zoomingOut = true;
     map.setZoom(zoomLevels[zoomIndex]);
+    _zoomingOut = false;
     zoomIndex++;
-  } else {
-    clearInterval(intervalId);
-  }
+    scheduleNextZoom();
+  }, step * 2000);
 }
 
 const d2r = Math.PI / 180;
@@ -256,6 +264,10 @@ async function loadMapOverlaysFromJson(jsonUrl, opts = {}) {
     // Icon SVG (raw markup) in hidden child node
     const iconEl = node.querySelector(".map-overlay-icon");
     if (iconEl) iconEl.innerHTML = String(iconSvg || "");
+
+    if (Number.isFinite(item.hideAtZoom)) {
+      node.dataset.hideAtZoom = String(item.hideAtZoom);
+    }
 
     mount.appendChild(node);
   }
@@ -581,6 +593,7 @@ function createMapModalBinder(classSelector) {
       });
 
       marker.addListener("gmp-click", () => {
+        cancelZoom();
         openModal({
           titleText: titleText || "Details",
           bodyHTML,
@@ -589,6 +602,15 @@ function createMapModalBinder(classSelector) {
           textColor,
         });
       });
+
+      const hideAtZoom = Number(el.dataset.hideAtZoom);
+      if (Number.isFinite(hideAtZoom)) {
+        const updateVisibility = () => {
+          marker.map = map.getZoom() <= hideAtZoom ? null : map;
+        };
+        updateVisibility();
+        map.addListener("zoom_changed", updateVisibility);
+      }
     });
 
     map.addListener("click", () => closeModal());
@@ -914,7 +936,7 @@ window.initMap = async function initMap() {
 
   const infoWindow = new google.maps.InfoWindow();
   infoWindow.addListener("closeclick", function () {
-    intervalId = window.setInterval(zoomOut, 2000);
+    scheduleNextZoom();
   });
 
   for (let i = 0; i < bodies.length; i++) {
@@ -933,7 +955,7 @@ window.initMap = async function initMap() {
     bodyApsides.set("name", body.name);
 
     bodyApsides.addListener("click", function (event) {
-      clearInterval(intervalId);
+      cancelZoom();
 
       const lookupTitle = body.markerTitle || body.name;
       const overlayEl = _lasspFindOverlayEl(lookupTitle);
@@ -964,7 +986,7 @@ window.initMap = async function initMap() {
   sunIcon.setMap(map);
 
   sunIcon.addListener("click", function (event) {
-    clearInterval(intervalId);
+    cancelZoom();
 
     const { root, closeBtn } = sunInfoWindowNode(event, SUN);
     infoWindow.setContent(root);
@@ -975,8 +997,12 @@ window.initMap = async function initMap() {
     });
   });
 
+  map.addListener("click", cancelZoom);
+  map.addListener("dragstart", cancelZoom);
+  map.addListener("zoom_changed", () => { if (!_zoomingOut) cancelZoom(); });
+
   map.setZoom(zoomLevels[0]);
-  intervalId = window.setInterval(zoomOut, 2000);
+  scheduleNextZoom();
 
   const bindModals = createMapModalBinder(".map-overlay");
   bindModals(map);
