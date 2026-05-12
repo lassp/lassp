@@ -12,25 +12,18 @@
   <!-- Common site styles -->
   <link rel="stylesheet" href="../../css/site.css">
   <link rel="stylesheet" href="../../css/nav-layout.css">
+  <link rel="stylesheet" href="../../css/strip-nav.css">
 </head>
 
 <body>
   <!-- Header / Nav (same structure as root, corrected paths for 2 levels deep) -->
   <header class="nav">
-    <div class="nav-inner">
-      <a class="brand" href="../../">
-        <span class="lassp-yellow">Los Angeles Solar System Project</span>
-      </a>
-
-      <nav class="nav-links" aria-label="Primary">
-        <a href="../../">Home</a>
-
-        <details class="nav-model">
-          <summary>Model</summary>
-          <div class="submenu" id="model-submenu"><!-- populated by JS --></div>
-        </details>
-      </nav>
-    </div>
+    <a class="brand" href="../">
+      <span class="lassp-yellow">Los Angeles Solar System Project</span>
+    </a>
+    <nav id="strip-nav" class="strip-nav" aria-label="Solar system navigation">
+      <!-- populated by JS -->
+    </nav>
   </header>
 
   <main class="page">

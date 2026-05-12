@@ -11,25 +11,19 @@
 
   <link rel="stylesheet" href="./css/site.css" />
   <link rel="stylesheet" href="./css/nav-layout.css" />
+  <link rel="stylesheet" href="./css/strip-nav.css" />
   <link rel="stylesheet" href="./css/map.css" />
   <link rel="stylesheet" href="./css/map-modal.css" />
 </head>
 
 <body>
   <header class="nav">
-    <div class="nav-inner">
-      <a class="brand" href="./">
-        <span class="lassp-yellow">Los Angeles Solar System Project</span>
-      </a>
-      <nav class="nav-links" aria-label="Primary">
-        <a href="./" aria-current="page">Home</a>
-
-        <details class="nav-model">
-          <summary>Model</summary>
-          <div class="submenu" id="model-submenu"><!-- populated by JS --></div>
-        </details>
-      </nav>
-    </div>
+    <a class="brand" href="./">
+      <span class="lassp-yellow">Los Angeles Solar System Project</span>
+    </a>
+    <nav id="strip-nav" class="strip-nav" aria-label="Solar system navigation">
+      <!-- populated by JS -->
+    </nav>
   </header>
 
   <main class="page">
@@ -65,13 +59,13 @@
       <article class="card">
         <h2>The Model</h2>
         <dl>
-          <dt>The Sun</dt>
+          <dt data-model-icons="the-sun">The Sun</dt>
           <dd>
             The scale of the project is determined by the size of the planetarium dome. At 83 feet, it is 55
             million times smaller than the sun.
           </dd>
 
-          <dt>The Terrestrial Planets</dt>
+          <dt data-model-icons="mercury,venus,earth,mars">The Terrestrial Planets</dt>
           <dd>
             Planets orbit the Sun on an elliptical path. The circles represent the aphelion (furthest) and
             perihelion (closest) points a planet travels on its way around the Sun. The apparent size of the
@@ -79,14 +73,14 @@
             (Earth's orbit).
           </dd>
 
-          <dt>The Gas Giants</dt>
+          <dt data-model-icons="jupiter,saturn,uranus,neptune">The Gas Giants</dt>
           <dd>
             The Sun represents 99% of the mass of the solar system. The Gas Giants have 99% of the remaining
             mass consisting mostly of basic elements hydrogen, helium, carbon and oxygen. Their large size
             let us explore spherical structures.
           </dd>
 
-          <dt>The Dwarf Planets and Asteroids</dt>
+          <dt data-model-icons="ceres,asteroids-vesta,pluto,sedna">The Dwarf Planets and Asteroids</dt>
           <dd>
             Thousands of objects orbit the Sun. Many, including Pluto, are resonant with the orbit of
             Neptune. The twenty-nine largest can be placed around Southern California. One could be as far

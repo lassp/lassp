@@ -32,9 +32,11 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  padding-left: 12px;
   font-weight: 800;
   letter-spacing: 0.2px;
   color: var(--nav-text);
+  background: transparent;
   white-space: nowrap;
 }
 

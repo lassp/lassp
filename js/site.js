@@ -2,6 +2,13 @@
 
 window.LASSP = window.LASSP || {};
 
+// ---- Hamburger menu links — edit this array to configure ----
+// Each entry: { label: string, href: string }
+LASSP.hamburgerLinks = [
+  { label: "Home",                  href: "./"                          },
+  { label: "Fabrication Package",   href: "/downloads/lassp_fab.pdf"   },
+];
+
 // If you already have this, keep one copy.
 LASSP.slugifyTitle =
   LASSP.slugifyTitle ||
@@ -316,26 +323,271 @@ if (navHost && (prevEl || nextEl)) {
   }
 };
 
-// ---- Auto-init (root vs subpage) ----
-// If #model-submenu exists, build the dropdown.
-// If URL indicates /model/* AND .page-header exists, bind marker context too.
+// ---- Model card icon rows ----
+LASSP.buildModelCardIcons = async function buildModelCardIcons() {
+  const dts = Array.from(document.querySelectorAll("dt[data-model-icons]"));
+  if (!dts.length) return;
+
+  const jsonUrl   = LASSP.sitePath("data/map-model-markers.json");
+  const imgBase   = LASSP.sitePath("img/").replace(/\/?$/, "/");
+  const modelBase = LASSP.sitePath("model/");
+
+  const markers = await LASSP.loadMarkersJson(jsonUrl);
+  if (!markers.length) return;
+
+  const bySlug = new Map(markers.map((m) => [LASSP.slugifyTitle(m.title), m]));
+
+  // Collect unique slugs then fetch their SVGs in parallel
+  const neededSlugs = [
+    ...new Set(
+      dts.flatMap((dt) =>
+        dt.dataset.modelIcons.split(",").map((s) => s.trim()).filter(Boolean)
+      )
+    ),
+  ];
+
+  const svgMap = new Map();
+  await Promise.all(
+    neededSlugs.map(async (slug) => {
+      const m = bySlug.get(slug);
+      if (!m) return;
+      const url = imgBase + String(m.iconPath || "").trim().replace(/^\//, "");
+      try {
+        const r = await fetch(url, { cache: "no-store" });
+        svgMap.set(slug, r.ok ? await r.text() : "");
+      } catch { svgMap.set(slug, ""); }
+    })
+  );
+
+  dts.forEach((dt) => {
+    const slugs = dt.dataset.modelIcons.split(",").map((s) => s.trim()).filter(Boolean);
+    const row = document.createElement("span");
+    row.className = "model-icon-row";
+
+    slugs.forEach((slug) => {
+      const m = bySlug.get(slug);
+      if (!m) return;
+
+      const a = document.createElement("a");
+      a.className = "model-icon-btn";
+      a.href = modelBase + slug;
+      a.setAttribute("data-tooltip", m.title);
+      a.setAttribute("aria-label", m.title);
+      a.style.setProperty("--btn-bg", m.color || "#0087cd");
+      a.style.setProperty("--btn-fg", m.textColor || "#fff");
+
+      const circle = document.createElement("span");
+      circle.className = "model-icon-circle";
+      circle.innerHTML = svgMap.get(slug) || "";
+      a.appendChild(circle);
+      row.appendChild(a);
+    });
+
+    dt.appendChild(row);
+  });
+};
+
+// ---- Strip nav builder ----
+LASSP.buildStripNav = async function buildStripNav(mountEl) {
+  if (!mountEl) return;
+
+  const jsonUrl  = LASSP.sitePath("data/map-model-markers.json");
+  const imgBase  = LASSP.sitePath("img/").replace(/\/?$/, "/");
+  const homeUrl  = LASSP.sitePath("");
+  const modelBase = LASSP.sitePath("model/");
+
+  const markers = await LASSP.loadMarkersJson(jsonUrl);
+  if (!markers.length) return;
+
+  // Fetch all icon SVGs in parallel
+  async function fetchSvg(iconPath) {
+    const clean = String(iconPath || "").trim();
+    if (!clean) return "";
+    const url = imgBase + clean.replace(/^\//, "");
+    try {
+      const r = await fetch(url, { cache: "no-store" });
+      return r.ok ? await r.text() : "";
+    } catch { return ""; }
+  }
+  const svgs = await Promise.all(markers.map((m) => fetchSvg(m.iconPath)));
+
+  // Current-page detection
+  const currentSlug = LASSP.getMarkerSlugFromLocation();
+  const onHome = !currentSlug;
+
+  function makeBtn(m, svg, href, isCurrent, isHome) {
+    const a = document.createElement("a");
+    a.className = "strip-btn" + (isHome ? " strip-btn--home" : "");
+    a.href = href;
+    if (isCurrent) a.setAttribute("aria-current", "page");
+    a.style.setProperty("--btn-bg", m.color || "var(--nav-bg)");
+    a.style.setProperty("--btn-fg", m.textColor || "#ffffff");
+
+    const icon = document.createElement("span");
+    icon.className = "strip-btn-icon";
+    icon.innerHTML = svg;
+    a.appendChild(icon);
+
+    if (!isHome) {
+      const label = document.createElement("span");
+      label.className = "strip-btn-label";
+      label.textContent = m.title;
+      a.appendChild(label);
+    }
+    return a;
+  }
+
+  const [sunMarker, ...restMarkers] = markers;
+  const [sunSvg,   ...restSvgs]    = svgs;
+
+  // Pinned Sun
+  const pin = document.createElement("div");
+  pin.className = "strip-pin";
+  pin.appendChild(makeBtn(sunMarker, sunSvg, homeUrl, onHome, true));
+
+  // Scrollable track
+  const track = document.createElement("div");
+  track.className = "strip-track";
+  restMarkers.forEach((m, i) => {
+    const slug = LASSP.slugifyTitle(m.title);
+    track.appendChild(makeBtn(m, restSvgs[i], modelBase + slug, slug === currentSlug, false));
+  });
+
+  const scroller = document.createElement("div");
+  scroller.className = "strip-scroller";
+  scroller.appendChild(track);
+
+  // Arrows
+  function makeArrow(dir) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "strip-arrow strip-arrow--" + (dir < 0 ? "prev" : "next");
+    btn.setAttribute("aria-label", dir < 0 ? "Scroll left" : "Scroll right");
+    btn.innerHTML = dir < 0 ? "&#8249;" : "&#8250;";
+    btn.hidden = true;
+    return btn;
+  }
+  const prevArrow = makeArrow(-1);
+  const nextArrow = makeArrow(1);
+
+  const scrollWrap = document.createElement("div");
+  scrollWrap.className = "strip-scroll-wrap";
+  scrollWrap.appendChild(prevArrow);
+  scrollWrap.appendChild(scroller);
+  scrollWrap.appendChild(nextArrow);
+
+  mountEl.innerHTML = "";
+  mountEl.appendChild(pin);
+  mountEl.appendChild(scrollWrap);
+
+  // Arrow visibility
+  function updateArrows() {
+    const sl  = scroller.scrollLeft;
+    const max = scroller.scrollWidth - scroller.clientWidth;
+    prevArrow.hidden = sl < 2;
+    nextArrow.hidden = max < 2 || sl >= max - 2;
+  }
+
+  function scrollByOne(dir) {
+    const w = track.firstElementChild ? track.firstElementChild.offsetWidth : 60;
+    scroller.scrollBy({ left: dir * w, behavior: "smooth" });
+  }
+
+  prevArrow.addEventListener("click", () => scrollByOne(-1));
+  nextArrow.addEventListener("click", () => scrollByOne(1));
+  scroller.addEventListener("scroll", updateArrows, { passive: true });
+  new ResizeObserver(updateArrows).observe(scroller);
+
+  // Scroll current item into view on model pages
+  if (currentSlug) {
+    const current = track.querySelector('[aria-current="page"]');
+    if (current) {
+      requestAnimationFrame(() => {
+        current.scrollIntoView({ inline: "nearest", block: "nearest" });
+        requestAnimationFrame(updateArrows);
+      });
+    }
+  }
+
+  updateArrows();
+
+  // ---- Hamburger menu ----
+  const links = Array.isArray(LASSP.hamburgerLinks) ? LASSP.hamburgerLinks : [];
+  if (links.length) {
+    const hamburger = document.createElement("div");
+    hamburger.className = "strip-hamburger";
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "strip-hamburger-btn";
+    btn.setAttribute("aria-label", "Navigation menu");
+    btn.setAttribute("aria-expanded", "false");
+    btn.innerHTML = `<svg width="18" height="14" viewBox="0 0 18 14" aria-hidden="true" focusable="false">
+      <rect width="18" height="2" rx="1" fill="currentColor"/>
+      <rect y="6" width="18" height="2" rx="1" fill="currentColor"/>
+      <rect y="12" width="18" height="2" rx="1" fill="currentColor"/>
+    </svg>`;
+
+    const menu = document.createElement("div");
+    menu.className = "strip-hamburger-menu";
+    menu.hidden = true;
+
+    links.forEach(({ label, href }) => {
+      const a = document.createElement("a");
+      a.href = href;
+      a.textContent = label;
+      menu.appendChild(a);
+    });
+
+    hamburger.appendChild(btn);
+    hamburger.appendChild(menu);
+    mountEl.appendChild(hamburger);
+
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const open = menu.hidden;
+      menu.hidden = !open;
+      btn.setAttribute("aria-expanded", String(open));
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!hamburger.contains(e.target)) {
+        menu.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+      }
+    }, { capture: true });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !menu.hidden) {
+        menu.hidden = true;
+        btn.setAttribute("aria-expanded", "false");
+        btn.focus();
+      }
+    });
+  }
+};
+
+// ---- Auto-init ----
 document.addEventListener("DOMContentLoaded", async () => {
   // Year (safe everywhere)
   const y = document.getElementById("year");
   if (y) y.textContent = new Date().getFullYear();
 
-  const hasMenu = !!document.getElementById("model-submenu");
   const isModelPage = window.location.pathname.includes("/model/");
-  const hasHeader = !!document.querySelector(".page-header");
+  const hasHeader   = !!document.querySelector(".page-header");
 
   try {
-    if (isModelPage && hasHeader) {
-      await LASSP.initSubpage(); // we'll extend this to also create the mini-map
-      return;
+    const stripNavEl = document.getElementById("strip-nav");
+    if (stripNavEl) {
+      await LASSP.buildStripNav(stripNavEl);
+    } else if (document.getElementById("model-submenu")) {
+      await LASSP.buildModelMenuFromJson();
     }
 
-    if (hasMenu) {
-      await LASSP.buildModelMenuFromJson();
+    await LASSP.buildModelCardIcons();
+
+    if (isModelPage && hasHeader) {
+      await LASSP.initSubpage();
     }
   } catch (err) {
     console.error("LASSP auto-init failed:", err);

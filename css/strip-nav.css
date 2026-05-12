@@ -1,0 +1,295 @@
+/* css/strip-nav.css */
+
+:root {
+  --strip-btn-size: 60px;
+}
+
+/* Container fills the .nav header */
+.strip-nav {
+  display: flex;
+  align-items: stretch;
+  height: var(--strip-btn-size);
+  /* overflow: hidden omitted — the hamburger dropdown must escape this container */
+}
+
+/* ---- Pinned Sun ---- */
+.strip-pin {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  z-index: 1;
+  box-shadow: 2px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ---- Scroll region ---- */
+.strip-scroll-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  position: relative;
+}
+
+.strip-scroller {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.strip-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.strip-track {
+  display: flex;
+  height: 100%;
+}
+
+/* ---- Buttons ---- */
+.strip-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: var(--strip-btn-size);
+  height: var(--strip-btn-size);
+  padding: 5px 4px 6px;
+  gap: 4px;
+  background-color: transparent;
+  color: var(--btn-fg, #ffffff);
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: opacity 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.strip-btn:hover {
+  opacity: 0.85;
+  text-decoration: none;
+}
+
+/* Sun — slightly wider, no label */
+.strip-btn--home {
+  width: 68px;
+}
+
+/* Icon circle */
+.strip-btn-icon {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--btn-bg, var(--nav-bg));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 120ms ease;
+}
+
+.strip-btn-icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+/* Override any hardcoded fill colours in SVG files */
+.strip-btn-icon * {
+  fill: currentColor !important;
+}
+
+/* Current-page: ring around the circle */
+.strip-btn[aria-current="page"] .strip-btn-icon {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+/* Label: always nav-text colour, independent of planet colour */
+.strip-btn-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  color: var(--nav-text);
+}
+
+/* ---- Scroll arrows ---- */
+.strip-arrow {
+  flex: 0 0 32px;
+  align-self: stretch;
+  background: var(--nav-bg);
+  border: none;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 120ms ease, color 120ms ease;
+  z-index: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.strip-arrow--prev {
+  box-shadow: 3px 0 8px rgba(0, 0, 0, 0.35);
+}
+
+.strip-arrow--next {
+  box-shadow: -3px 0 8px rgba(0, 0, 0, 0.35);
+}
+
+.strip-arrow:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.strip-arrow[hidden] {
+  display: none !important;
+}
+
+/* ---- Hamburger menu ---- */
+.strip-hamburger {
+  flex: 0 0 auto;
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+.strip-hamburger-btn {
+  width: 48px;
+  height: var(--strip-btn-size);
+  background: transparent;
+  border: none;
+  color: var(--nav-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 120ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.strip-hamburger-btn:hover,
+.strip-hamburger-btn[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.strip-hamburger-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 200px;
+  background: rgba(15, 23, 42, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+  z-index: 4000;
+}
+
+.strip-hamburger-menu[hidden] {
+  display: none !important;
+}
+
+.strip-hamburger-menu a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--nav-text);
+  text-decoration: none;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.strip-hamburger-menu a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}
+
+/* =========================
+   Model card icon rows
+   ========================= */
+.model-icon-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.model-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 120ms ease;
+}
+
+.model-icon-btn:hover {
+  opacity: 0.72;
+  text-decoration: none;
+}
+
+.model-icon-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--btn-bg, #0087cd);
+  color: var(--btn-fg, #ffffff);
+}
+
+.model-icon-circle svg {
+  width: 11px;
+  height: 11px;
+  display: block;
+}
+
+.model-icon-circle * {
+  fill: currentColor !important;
+}
+
+/* Tooltip */
+.model-icon-btn {
+  position: relative;
+}
+
+.model-icon-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.92);
+  color: #e8eaf0;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  padding: 4px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  z-index: 50;
+}
+
+.model-icon-btn:hover::after {
+  opacity: 1;
+}
