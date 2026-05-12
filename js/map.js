@@ -723,7 +723,7 @@ function installExpandMapControl() {
 
   function updateVisibility() {
     const collapsedHeightPx = getCollapsedHeightPx();
-    const expandedHeightPx = window.innerHeight - 120;
+    const expandedHeightPx = window.innerHeight - 50;
 
     const shouldHide = expandedHeightPx <= collapsedHeightPx + 1;
 
@@ -747,6 +747,10 @@ function installExpandMapControl() {
     const expanded = mapCanvas.classList.toggle("is-expanded");
     document.body.classList.toggle("map-expanded", expanded);
 
+    if (expanded) {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
     // Allow wheel-to-zoom with no modifier when expanded
     if (window.google && map) {
       map.setOptions({
@@ -763,8 +767,16 @@ function installExpandMapControl() {
   window.addEventListener(
     "resize",
     () => {
+      if (mapCanvas.classList.contains("is-expanded")) {
+        mapCanvas.classList.remove("is-expanded");
+        document.body.classList.remove("map-expanded");
+        if (window.google && map) {
+          map.setOptions({ gestureHandling: "cooperative" });
+        }
+        updateLabel();
+        resizeMap();
+      }
       updateVisibility();
-      if (mapCanvas.classList.contains("is-expanded")) resizeMap();
     },
     { passive: true },
   );
@@ -1000,6 +1012,7 @@ window.initMap = async function initMap() {
     mapTypeId: google.maps.MapTypeId.HYBRID,
     tilt: 0,
     mapId: "lassp_map_id",
+    streetViewControl: false,
   });
 
   await google.maps.importLibrary("marker");

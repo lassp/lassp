@@ -92,6 +92,14 @@ a:hover {
   }
 }
 
+/* Landscape mobile: viewport height is too short for the default map height,
+   which pushes the Expand Map button below the fold. Cap the map so it fits. */
+@media (max-height: 500px) {
+  :root {
+    --map-h: 200px;
+  }
+}
+
 /* =========================
      Page layout + rhythm
      ========================= */

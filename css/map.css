@@ -22,7 +22,8 @@
   width: 100vw;          /* fill viewport width */
   max-width: 100vw;
 
-  height: calc(100vh - 120px);
+  height: calc(100vh - 120px);   /* fallback */
+  height: calc(100dvh - 120px); /* shrinks with browser chrome on mobile */
 
   border-radius: 14px;
   border-left: none;
@@ -37,7 +38,7 @@
    ========================= */
 #zoom-progress {
   position: absolute;
-  bottom: 52px; /* sits just above the Expand Map button (bottom: 12px + ~34px height + 6px gap) */
+  bottom: calc(52px + env(safe-area-inset-bottom, 0px)); /* tracks above the Expand Map button */
   left: 50%;
   transform: translateX(-50%);
   width: 180px;
@@ -67,7 +68,7 @@ body.map-expanded {
 .map-toggle--floating {
   position: absolute;
   left: 50%;
-  bottom: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
   z-index: 10;
 }
