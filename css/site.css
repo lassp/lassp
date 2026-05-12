@@ -245,6 +245,29 @@ blockquote {
   display: none !important;
 }
 
+/* Scale model table (model/index.html) */
+.scale-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+.scale-table th,
+.scale-table td {
+  padding: 7px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--surface-border);
+}
+.scale-table th {
+  font-weight: 700;
+  color: var(--muted-text);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.scale-table tr:last-child td {
+  border-bottom: none;
+}
+
 /* Fabrication package link */
 .fab-pkg-link {
   display: inline-flex;

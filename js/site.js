@@ -6,7 +6,8 @@ window.LASSP = window.LASSP || {};
 // Each entry: { label: string, href: string }
 LASSP.hamburgerLinks = [
   { label: "Home",                  href: "./"                          },
-  { label: "Fabrication Package",   href: "/downloads/lassp_fab.pdf"   },
+  { label: "The Scale of the Model", href: "/model/"                   },
+  { label: "Fabrication Package",   href: "/downloads/lassp_fab.pdf",  target: "_blank" },
 ];
 
 // If you already have this, keep one copy.
@@ -325,7 +326,7 @@ if (navHost && (prevEl || nextEl)) {
 
 // ---- Model card icon rows ----
 LASSP.buildModelCardIcons = async function buildModelCardIcons() {
-  const dts = Array.from(document.querySelectorAll("dt[data-model-icons]"));
+  const dts = Array.from(document.querySelectorAll("[data-model-icons]"));
   if (!dts.length) return;
 
   const jsonUrl   = LASSP.sitePath("data/map-model-markers.json");
@@ -383,7 +384,11 @@ LASSP.buildModelCardIcons = async function buildModelCardIcons() {
       row.appendChild(a);
     });
 
-    dt.appendChild(row);
+    if (dt.hasAttribute("data-model-icons-before")) {
+      dt.prepend(row);
+    } else {
+      dt.appendChild(row);
+    }
   });
 };
 
@@ -532,9 +537,17 @@ LASSP.buildStripNav = async function buildStripNav(mountEl) {
     menu.className = "strip-hamburger-menu";
     menu.hidden = true;
 
-    links.forEach(({ label, href }) => {
+    links.forEach(({ label, href, target }) => {
       const a = document.createElement("a");
-      a.href = href;
+      // Resolve root-relative and ./-relative hrefs through sitePath so they
+      // work correctly from any page depth.
+      a.href = /^https?:\/\//.test(href)
+        ? href
+        : LASSP.sitePath(href.replace(/^\.\//, ""));
+      if (target) {
+        a.target = target;
+        if (target === "_blank") a.rel = "noopener";
+      }
       a.textContent = label;
       menu.appendChild(a);
     });

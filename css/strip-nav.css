@@ -230,6 +230,11 @@
   vertical-align: middle;
 }
 
+.model-icon-row:first-child {
+  margin-left: 0;
+  margin-right: 6px;
+}
+
 .model-icon-btn {
   display: flex;
   align-items: center;
