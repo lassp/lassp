@@ -245,6 +245,25 @@ blockquote {
   display: none !important;
 }
 
+/* Fabrication package link */
+.fab-pkg-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--link);
+}
+.fab-pkg-link:hover {
+  color: var(--link-hover);
+  text-decoration: underline;
+}
+.fab-pkg-icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+  flex-shrink: 0;
+}
+
 /* Footer */
 footer {
   margin-top: 18px;
