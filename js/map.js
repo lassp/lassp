@@ -135,7 +135,10 @@ async function loadBodiesFromJson(jsonUrl) {
 // Map in global scope (used by other helpers)
 let map;
 
-const zoomLevels = [20, 13, 10, 8];
+const zoomLevels = [20, 18, 16, 13, 10, 8];
+// Exponential delays: base × 2^(step-1), where base = 15000 / (2^5 − 1) ≈ 484ms
+// Gaps: ~484ms, ~968ms, ~1935ms, ~3871ms, ~7742ms → total ≈ 15 000ms
+const ZOOM_DELAY_BASE = 15000 / (Math.pow(2, zoomLevels.length - 1) - 1);
 let zoomIndex = 1;
 let intervalId;
 let _zoomingOut = false;
@@ -145,15 +148,15 @@ function cancelZoom() {
 }
 
 function scheduleNextZoom() {
-  const step = zoomIndex; // step 1 → 2000ms, step 2 → 4000ms, …
-  intervalId = setTimeout(function zoomOut() {
+  if (zoomIndex >= zoomLevels.length) return;
+  const delay = ZOOM_DELAY_BASE * Math.pow(2, zoomIndex - 1);
+  intervalId = setTimeout(function () {
     if (zoomIndex >= zoomLevels.length) return;
     _zoomingOut = true;
-    map.setZoom(zoomLevels[zoomIndex]);
+    map.setZoom(zoomLevels[zoomIndex++]);
     _zoomingOut = false;
-    zoomIndex++;
     scheduleNextZoom();
-  }, step * 2000);
+  }, delay);
 }
 
 const d2r = Math.PI / 180;
