@@ -391,3 +391,30 @@ footer {
   height: auto;
   display: block;
 }
+
+.fabdrawing-panel figcaption {
+  padding: 8px 12px 10px;
+  font-size: 0.8rem;
+  color: var(--muted-text);
+  text-align: center;
+}
+
+#scale-illustration .card {
+  padding: 16px 16px 0;
+}
+
+#scale-illustration a {
+  display: block;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin-top: 14px;
+  margin-bottom: 14px;
+}
+
+#scale-illustration img {
+  display: block;
+  min-width: 900px;
+  max-width: none;
+  height: auto;
+  border-radius: 6px;
+}
