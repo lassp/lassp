@@ -414,7 +414,7 @@ function _lasspSvgToDataUrl(svgString) {
   return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
 }
 
-function _lasspMakeMarkerWrap(markerUrl, size = 44) {
+function _lasspMakeMarkerWrap(markerUrl, size = 44, labelText = "") {
   if (!markerUrl) return null;
 
   const img = document.createElement("img");
@@ -427,9 +427,19 @@ function _lasspMakeMarkerWrap(markerUrl, size = 44) {
   img.draggable = false;
 
   const wrap = document.createElement("div");
+  wrap.style.display = "flex";
+  wrap.style.flexDirection = "column";
+  wrap.style.alignItems = "center";
   wrap.style.transform = "translate(0, 50%)";
   wrap.style.willChange = "transform";
   wrap.appendChild(img);
+
+  if (labelText) {
+    const label = document.createElement("div");
+    label.className = "lassp-marker-label";
+    label.textContent = labelText;
+    wrap.appendChild(label);
+  }
 
   return wrap;
 }
@@ -648,7 +658,7 @@ function createMapModalBinder(classSelector) {
       const markerUrl = _lasspSvgToDataUrl(markerSvg);
       if (!markerUrl) return;
 
-      const markerWrap = _lasspMakeMarkerWrap(markerUrl, 44);
+      const markerWrap = _lasspMakeMarkerWrap(markerUrl, 44, titleText);
       if (!markerWrap) return;
 
       const position = { lat, lng };
@@ -1261,7 +1271,7 @@ LASSP.initMarkerMiniMap =
       const markerUrl = _lasspSvgToDataUrl(markerSvg);
       if (!markerUrl) return null;
 
-      const wrap = _lasspMakeMarkerWrap(markerUrl, 44);
+      const wrap = _lasspMakeMarkerWrap(markerUrl, 44, title);
       if (!wrap) return null;
 
       const adv = new google.maps.marker.AdvancedMarkerElement({
