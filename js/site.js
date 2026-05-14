@@ -580,11 +580,49 @@ LASSP.buildStripNav = async function buildStripNav(mountEl) {
   }
 };
 
-// ---- Auto-init ----
-document.addEventListener("DOMContentLoaded", async () => {
-  // Year (safe everywhere)
+// ---- Footer enhancement ----
+LASSP.initFooter = function initFooter() {
+  const INSTAGRAM = "https://www.instagram.com/planetaryorbitworks/";
+  const logos = document.querySelector(".footer-logos");
+  if (!logos) return;
+
+  const powPicture = logos.querySelector("#pow-logo");
+  if (powPicture) {
+    const tpl = document.createElement("template");
+    tpl.innerHTML = `
+      <a href="${INSTAGRAM}"
+         target="_blank"
+         rel="noopener"
+         aria-label="Planetary Orbit Works on Instagram">
+      </a>
+    `;
+    const a = tpl.content.firstElementChild;
+    powPicture.replaceWith(a);
+    a.appendChild(powPicture);
+  }
+
+  const tpl = document.createElement("template");
+  tpl.innerHTML = `
+    <a href="${INSTAGRAM}"
+       target="_blank"
+       rel="noopener"
+       aria-label="Planetary Orbit Works on Instagram"
+       class="footer-ig">
+      <img src="${LASSP.sitePath("img/svg-icons/instagram.svg")}"
+           alt=""
+           aria-hidden="true"
+           width="22"
+           height="22" />
+    </a>
+  `;
+  logos.appendChild(tpl.content.firstElementChild);
+
   const y = document.getElementById("year");
   if (y) y.textContent = new Date().getFullYear();
+};
+
+// ---- Auto-init ----
+document.addEventListener("DOMContentLoaded", async () => {
 
   const isModelPage = window.location.pathname.includes("/model/");
   const hasHeader   = !!document.querySelector(".page-header");
@@ -602,6 +640,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (isModelPage && hasHeader) {
       await LASSP.initSubpage();
     }
+
+    LASSP.initFooter();
   } catch (err) {
     console.error("LASSP auto-init failed:", err);
   }

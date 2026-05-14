@@ -135,16 +135,20 @@
     <div id="map-overlay-mount" hidden></div>
 
     <footer>
-      <p>
-        &copy; 2005 - <span id="year"></span> by Jack Anderson, all rights reserved.
-      </p>
-      <p>
         <!-- 
         Sun icon courtesy Dan Wiersema
-        http://www.iconarchive.com/show/solar-system-icons-by-dan-wiersma/Sun-icon.html
+        https://www.iconarchive.com/show/solar-system-icons-by-dan-wiersma/Sun-icon.html
         https://www.danwiersema.com/
         -->
-      </p>
+      <div class="footer-inner">
+        <div class="footer-logos">
+          <picture id="pow-logo">
+            <source srcset="/img/logos/POW-logo-white.png" media="(prefers-color-scheme: dark)" />
+            <img src="/img/logos/POW-logo-color.png" alt="Planetary Orbit Works" class="footer-pow-logo" />
+          </picture>
+        </div>
+        <p>&copy; 2005 - <span id="year"></span> by Jack Anderson, all rights reserved.</p>
+      </div>
     </footer>
   </main>
 

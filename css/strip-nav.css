@@ -230,9 +230,13 @@
   vertical-align: middle;
 }
 
-.model-icon-row:first-child {
+[data-model-icons-before] .model-icon-row {
   margin-left: 0;
   margin-right: 6px;
+}
+
+dt .model-icon-row {
+  margin-left: 8px;
 }
 
 .model-icon-btn {

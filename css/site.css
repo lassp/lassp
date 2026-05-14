@@ -302,6 +302,63 @@ footer {
   }
 }
 
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.footer-inner p {
+  margin: 0;
+}
+
+@media (max-width: 520px) {
+  .footer-inner {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+  }
+}
+
+.footer-logos {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.footer-logos a {
+  display: flex;
+  align-items: center;
+  color: inherit;
+  opacity: 0.65;
+  transition: opacity 120ms ease;
+}
+
+.footer-logos a:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
+.footer-pow-logo {
+  display: block;
+  height: 28px;
+  width: auto;
+}
+
+.footer-ig img {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  .footer-ig img {
+    filter: invert(1);
+  }
+}
+
 /* =========================
      Map canvas shared styling
      ========================= */
